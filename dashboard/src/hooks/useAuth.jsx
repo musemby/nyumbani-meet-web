@@ -26,25 +26,28 @@ function useAuth() {
           password,
         }),
       })
+
       const data = await response.json()
-      console.log('data', data)
-      console.log('data.token', data.token)
-      console.log(data)
       if (data.token) {
+        console.log('Save token')
         saveToken(data.token)
+      } else {
+        console.log('Token not found')
+        deleteToken()
       }
     } catch (error) {
       console.log(error)
       snackbar.enqueueSnackbar(`Error saving form ${error}`, {
         variant: 'error',
       })
+      deleteToken()
     }
     setAuthLoading(false)
     return null
   }
 
   function saveToken(token) {
-    setToken(null)
+    setToken(token)
     localStorage.setItem('token', token)
   }
 

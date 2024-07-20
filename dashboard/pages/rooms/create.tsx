@@ -2,19 +2,33 @@
 
 import React from 'react'
 import { Button, Form, Input } from 'antd'
-import useAuth from '../src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useSnackbar } from 'notistack'
+import { useCreateRoom } from '../../src/api-client/rooms'
 
 const App = () => {
   const router = useRouter()
-  const { authenticateWithServer, authLoading, isAuthenticated, token } =
-    useAuth()
   const snackbar = useSnackbar()
+  const { mutateAsync: createRoom, isLoading: createRoomIsLoading } =
+    useCreateRoom()
 
-  const onFinish = (values) => {
-    authenticateWithServer(values.username, values.password)
+  const onFinish = async (values) => {
+    try {
+      console.log('values', values)
+      await createRoom({ data: values })
+      snackbar.enqueueSnackbar('Room created successfully', {
+        variant: 'success',
+      })
+
+      router.push('/rooms')
+    } catch (error) {
+      console.log(error)
+      snackbar.enqueueSnackbar(`Error creating room ${error}`, {
+        variant: 'error',
+      })
+    }
+
     console.log('Success:', values)
   }
 
@@ -25,17 +39,11 @@ const App = () => {
     console.log('Failed:', errorInfo)
   }
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/calendar')
-    }
-  }, [isAuthenticated, router])
-
   return (
     <div
       style={{
-        margin: '10 auto',
-        padding: '10 auto',
+        margin: '10px auto',
+        padding: '10px auto',
         width: '100%',
       }}
     >
@@ -59,8 +67,8 @@ const App = () => {
         autoComplete='off'
       >
         <Form.Item
-          label='Username'
-          name='username'
+          label='Room Name'
+          name='name'
           rules={[
             {
               required: true,
@@ -71,26 +79,16 @@ const App = () => {
           <Input />
         </Form.Item>
 
-        <Form.Item
-          label='Password'
-          name='password'
-          rules={[
-            {
-              required: true,
-              message: 'Please input your password!',
-            },
-          ]}
-        >
-          <Input.Password />
+        <Form.Item label='Room Description' name='description' rules={[]}>
+          <Input />
         </Form.Item>
 
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
-        >
-          <Button type='primary' htmlType='submit' disabled={authLoading}>
+        <Form.Item>
+          <Button
+            type='primary'
+            htmlType='submit'
+            disabled={createRoomIsLoading}
+          >
             Submit
           </Button>
         </Form.Item>

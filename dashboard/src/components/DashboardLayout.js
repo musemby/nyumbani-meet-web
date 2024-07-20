@@ -1,14 +1,9 @@
 import React, { useState } from 'react'
-import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from '@ant-design/icons'
+import { TeamOutlined, BankOutlined, CalendarOutlined } from '@ant-design/icons'
 import { Layout, Menu, theme } from 'antd'
-const { Header, Content, Footer, Sider } = Layout
+const { Content, Footer, Sider } = Layout
 import useAuth from '../hooks/useAuth'
+import { useRouter } from 'next/router'
 
 function getItem(label, key, icon, children) {
   return {
@@ -19,18 +14,12 @@ function getItem(label, key, icon, children) {
   }
 }
 const items = [
-  getItem('Option 1', '1', <PieChartOutlined />),
-  getItem('Option 2', '2', <DesktopOutlined />),
-  getItem('User', 'sub1', <UserOutlined />, [
-    getItem('Tom', '3'),
-    getItem('Bill', '4'),
-    getItem('Alex', '5'),
+  getItem('calendar', '/calendar', <CalendarOutlined />),
+  getItem('Room', '/rooms', <BankOutlined />, [
+    getItem('View All', '/rooms'),
+    getItem('Add New', '/rooms/create'),
   ]),
-  getItem('Team', 'sub2', <TeamOutlined />, [
-    getItem('Team 1', '6'),
-    getItem('Team 2', '8'),
-  ]),
-  getItem('Files', '9', <FileOutlined />),
+  getItem('Tenants', '/tenants', <TeamOutlined />),
 ]
 
 const App = ({ children }) => {
@@ -39,6 +28,7 @@ const App = ({ children }) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken()
+  const router = useRouter()
   return (
     <Layout
       style={{
@@ -55,16 +45,19 @@ const App = ({ children }) => {
           theme='dark'
           defaultSelectedKeys={['1']}
           mode='inline'
-          items={items}
+          items={items.map((item) => ({
+            ...item,
+            onClick: () => router.push(item.key),
+          }))}
         />
       </Sider>
       <Layout>
-        <Header
+        {/* <Header
           style={{
             padding: 0,
             background: colorBgContainer,
           }}
-        />
+        /> */}
         <Content
           style={{
             margin: '0 16px',
@@ -77,7 +70,7 @@ const App = ({ children }) => {
             textAlign: 'center',
           }}
         >
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          Nyumbani ©{new Date().getFullYear()}
         </Footer>
       </Layout>
     </Layout>

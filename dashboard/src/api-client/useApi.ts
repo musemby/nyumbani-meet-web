@@ -10,7 +10,7 @@ type QueryKey = Array<unknown>
 
 export function useApi(apiPath: string) {
   const { enqueueSnackbar } = useSnackbar()
-  const { getToken } = useAuth()
+  const { getToken, deleteToken } = useAuth()
 
   const router = useRouter()
 

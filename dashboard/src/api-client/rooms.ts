@@ -14,15 +14,6 @@ interface RoomType {
   description?: string | null
 }
 
-interface RoomResponseType {
-  results: RoomType[]
-  limit: number
-  offset: number
-  count: number
-  next: null
-  previous: null
-}
-
 const useRoomApi = () => {
   return useApi('/bookings/rooms')
 }
@@ -45,9 +36,9 @@ export const useRoom = (id?: string, enabled?: boolean) => {
 
 export const useRoomList = (params: DefaultApiListParams = {}) => {
   const { useFetch } = useRoomApi()
-  return useFetch<RoomResponseType>(
+  return useFetch<RoomType[]>(
     ['Room', JSON.stringify(params)],
-    '/list',
+    '/',
     {},
     params,
     {},
@@ -62,7 +53,8 @@ export const useCreateRoom = () => {
   const queryClient = useQueryClient()
   return useMutation<RoomType, any, any>(
     ({ data }: { data: any }) => {
-      return create<RoomType>('/create', data)
+      console.log('data', data)
+      return create<RoomType>('/create/', data)
     },
     {
       onSuccess: (data: any) => {

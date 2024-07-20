@@ -1,15 +1,17 @@
-import Layout from '../src/components/layout'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayjs from 'dayjs'
 import { useBookingList, useCreateBooking } from '../src/api-client/bookings'
+import { useRoomList } from '../src/api-client/rooms'
+import { useEffect, useRef, useState } from 'react'
+import { Select, Flex, Divider } from 'antd'
+
 var isBetween = require('dayjs/plugin/isBetween')
 dayjs.extend(isBetween)
 
 const defaultEvent = {
-  resourceId: 'a',
   editable: false,
   overlap: false,
 }
@@ -21,10 +23,17 @@ function bookingToEvent(booking) {
     title: booking.description,
     start: dayjs(booking.start_time).toDate(),
     end: dayjs(booking.end_time).toDate(),
+    resourceId: booking.room,
   }
 }
 
 export default function CalendarPage() {
+  const calendarRef = useRef(null)
+  const initialCalendarView = 'timeGridDay'
+  const [room, setRoom] = useState(null)
+
+  const { mutateAsync: createBooking } = useCreateBooking()
+
   const {
     data: bookings,
     isLoading: bookingsIsLoading,
@@ -32,18 +41,22 @@ export default function CalendarPage() {
     refetch: refetchBookings,
   } = useBookingList()
 
-  const events = bookings?.map((booking) => bookingToEvent(booking)) || []
+  const {
+    data: rooms,
+    isLoading: roomsIsLoading,
+    isError: roomsIsError,
+    refetch: refetchRooms,
+  } = useRoomList()
 
-  const { mutateAsync: createBooking } = useCreateBooking()
+  useEffect(() => {
+    if (!room) {
+      rooms?.length > 0 && setRoom(rooms[0].id)
+    }
+  }, [rooms])
 
-  // const {
-  //   data: userProfile,
-  //   isLoading: userProfileIsLoading,
-  //   isError: userProfileIsError,
-  //   refetch: refetchUserProfile,
-  // } = useUserProfile("me");
-
-  console.log('bookings', bookings)
+  const bookingsForRoom =
+    bookings?.filter((booking) => booking.room === room) || []
+  const events = bookingsForRoom.map((booking) => bookingToEvent(booking)) || []
 
   const handleDateClick = async (dateClickInfo) => {
     console.log(dateClickInfo)
@@ -83,6 +96,7 @@ export default function CalendarPage() {
           start_time: date,
           end_time: end,
           description: 'tenant 1 booking',
+          room: room,
         },
       })
     } catch (error) {
@@ -92,70 +106,89 @@ export default function CalendarPage() {
     refetchBookings()
   }
 
-  return (
-    <Layout>
-      <div
-        style={{
-          height: '98dvh',
-        }}
-      >
-        {/* <div className='calendar-container'> */}
-        <FullCalendar
-          plugins={[
-            // resourceTimelinePlugin,
-            dayGridPlugin,
-            interactionPlugin,
-            timeGridPlugin,
-          ]}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'resourceTimelineWeek,dayGridMonth,timeGridWeek,timeGridDay',
-          }}
-          initialView='timeGridDay'
-          nowIndicator={true}
-          editable={true}
-          selectable={false}
-          selectMirror={false}
-          resources={[
-            { id: 'a', title: 'Auditorium A' },
-            { id: 'b', title: 'Auditorium B', eventColor: 'green' },
-            { id: 'c', title: 'Auditorium C', eventColor: 'orange' },
-          ]}
-          // initialEvents={events}
-          events={events}
-          dateClick={handleDateClick}
-          height='100%'
-          width='100%'
-          selectAllow={() => console.log('select allow')}
-          validRange={() => {
-            return {
-              start: dayjs().subtract(2, 'hour').toDate(),
-              end: dayjs().add(5, 'day').toDate(),
-            }
-          }}
-          eventDurationEditable={false}
-          eventStartEditable={false}
-          eventResizableFromStart={false}
-          droppable={false}
-          eventClick={(info) => {
-            console.log(info)
-            console.log('Event')
-            console.log(info.event)
-            console.log(info.event.id)
-            console.log(JSON.stringify(info.event))
-            // alert('Event: ' + info.event.title)
-            // alert(
-            //   'Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY
-            // )
-            // alert('View: ' + info.view.type)
+  function handleViewChange(view) {
+    console.log(view)
+    calendarRef.current && calendarRef.current.getApi().changeView(view)
+  }
 
-            // change the border color just for fun
-            info.el.style.borderColor = 'red'
-          }}
+  return (
+    <div
+      style={{
+        height: '98dvh',
+      }}
+    >
+      <Flex justify='center' alignItems='center' gap={2}>
+        <Select
+          // defaultValue='lucy'
+          // style={{ width: 120 }}
+          value={room}
+          onChange={(value) => setRoom(value)}
+          loading={roomsIsLoading}
+          options={rooms?.map((room) => ({
+            value: room.id,
+            label: room.name,
+          }))}
         />
-        {/* </div> */}
-      </div>
-    </Layout>
+        <Select
+          defaultValue={initialCalendarView}
+          onChange={(value) => handleViewChange(value)}
+          options={[
+            // { value: 'resourceTimelineWeek', label: 'ResourceTimelineWeek' },
+            { value: 'dayGridMonth', label: 'Month view' },
+            { value: 'timeGridWeek', label: 'Week view' },
+            { value: 'timeGridDay', label: 'Day view' },
+          ]}
+        />
+      </Flex>
+
+      <div style={{ height: '10px' }} />
+      <Divider />
+      {/* <div className='calendar-container'> */}
+      <FullCalendar
+        ref={calendarRef}
+        plugins={[
+          // resourceTimelinePlugin,
+          dayGridPlugin,
+          interactionPlugin,
+          timeGridPlugin,
+        ]}
+        headerToolbar={{
+          center: '',
+          right: 'title',
+          left: 'prev,next today',
+          // right: 'resourceTimelineWeek,dayGridMonth,timeGridWeek,timeGridDay',
+        }}
+        initialView={initialCalendarView}
+        nowIndicator={true}
+        editable={true}
+        selectable={false}
+        selectMirror={false}
+        resources={rooms?.map((room) => ({
+          id: room.id,
+          title: room.name,
+          // eventColor: room.color,
+        }))}
+        // initialEvents={events}
+        events={events}
+        dateClick={handleDateClick}
+        height='100%'
+        width='100%'
+        selectAllow={() => console.log('select allow')}
+        validRange={() => {
+          return {
+            start: dayjs().subtract(2, 'hour').toDate(),
+            end: dayjs().add(5, 'day').toDate(),
+          }
+        }}
+        eventDurationEditable={false}
+        eventStartEditable={false}
+        eventResizableFromStart={false}
+        droppable={false}
+        eventClick={(info) => {
+          console.log(info)
+        }}
+      />
+      {/* </div> */}
+    </div>
   )
 }
