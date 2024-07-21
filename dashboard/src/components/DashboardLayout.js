@@ -4,22 +4,24 @@ import { Layout, Menu, theme } from 'antd'
 const { Content, Footer, Sider } = Layout
 import useAuth from '../hooks/useAuth'
 import { useRouter } from 'next/router'
+import { useUser } from '../api-client/user'
 
-function getItem(label, key, icon, children) {
+function getItem(label, key, isAdmin, icon, children) {
   return {
     key,
+    isAdmin,
     icon,
     children,
     label,
   }
 }
 const items = [
-  getItem('calendar', '/calendar', <CalendarOutlined />),
-  getItem('Room', '/rooms', <BankOutlined />, [
-    getItem('View All', '/rooms'),
-    getItem('Add New', '/rooms/create'),
+  getItem('calendar', '/calendar', false, <CalendarOutlined />),
+  getItem('Room', '/rooms', false, <BankOutlined />, [
+    getItem('View All', '/rooms', false),
+    getItem('Add New', '/rooms/create', false),
   ]),
-  getItem('Tenants', '/tenants', <TeamOutlined />),
+  getItem('Tenants', '/tenants', false, <TeamOutlined />),
 ]
 
 const App = ({ children }) => {
@@ -29,6 +31,21 @@ const App = ({ children }) => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken()
   const router = useRouter()
+
+  const {
+    data: user,
+    isLoading: userIsLoading,
+    isError: userIsError,
+    refetch: refetchUser,
+  } = useUser('me', isAuthenticated && !authLoading)
+
+  function getAllItems() {
+    if (user && user.is_admin) {
+      return items
+    }
+    return items.filter((item) => !item.isAdmin)
+  }
+
   return (
     <Layout
       style={{
@@ -45,7 +62,7 @@ const App = ({ children }) => {
           theme='dark'
           defaultSelectedKeys={['1']}
           mode='inline'
-          items={items.map((item) => ({
+          items={getAllItems().map((item) => ({
             ...item,
             onClick: () => router.push(item.key),
           }))}
