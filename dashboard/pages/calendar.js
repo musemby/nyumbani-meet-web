@@ -3,10 +3,16 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayjs from 'dayjs'
-import { useBookingList, useCreateBooking } from '../src/api-client/bookings'
+import {
+  useBookingList,
+  useCreateBooking,
+  useDeleteBooking,
+} from '../src/api-client/bookings'
+import { useUser } from '../src/api-client/user'
 import { useRoomList } from '../src/api-client/rooms'
 import { useEffect, useRef, useState } from 'react'
-import { Select, Flex, Divider } from 'antd'
+import { Select, Flex, Divider, Modal } from 'antd'
+import { useSnackbar } from 'notistack'
 
 var isBetween = require('dayjs/plugin/isBetween')
 dayjs.extend(isBetween)
@@ -28,11 +34,18 @@ function bookingToEvent(booking) {
 }
 
 export default function CalendarPage() {
+  const { enqueueSnackbar } = useSnackbar()
   const calendarRef = useRef(null)
   const initialCalendarView = 'timeGridDay'
   const [room, setRoom] = useState(null)
+  const [selectedBooking, setSelectedBooking] = useState(null)
 
   const { mutateAsync: createBooking } = useCreateBooking()
+  const { mutateAsync: deleteBooking } = useDeleteBooking()
+
+  function getBookingById(bookingId) {
+    return bookings?.find((booking) => booking.id === bookingId)
+  }
 
   const {
     data: bookings,
@@ -48,6 +61,15 @@ export default function CalendarPage() {
     refetch: refetchRooms,
   } = useRoomList()
 
+  const {
+    data: user,
+    isLoading: userIsLoading,
+    isError: userIsError,
+    refetch: refetchUser,
+  } = useUser('me')
+
+  console.log('user', user)
+
   useEffect(() => {
     if (!room) {
       rooms?.length > 0 && setRoom(rooms[0].id)
@@ -58,6 +80,25 @@ export default function CalendarPage() {
     bookings?.filter((booking) => booking.room === room) || []
   const events = bookingsForRoom.map((booking) => bookingToEvent(booking)) || []
 
+  async function handleDeleteBooking() {
+    if (!selectedBooking) {
+      enqueueSnackbar('No booking selected', { variant: 'error' })
+      return
+    }
+
+    try {
+      await deleteBooking({ uuid: selectedBooking })
+      setSelectedBooking(null)
+      enqueueSnackbar('Booking deleted', { variant: 'success' })
+    } catch (error) {
+      enqueueSnackbar(`Error deleting booking: ${error.message}`, {
+        variant: 'error',
+      })
+      console.log(error)
+    }
+    refetchBookings()
+  }
+
   const handleDateClick = async (dateClickInfo) => {
     console.log(dateClickInfo)
 
@@ -65,11 +106,11 @@ export default function CalendarPage() {
       date,
       // jsEvent, view
     } = dateClickInfo
+    const end = dayjs(date).add(1, 'hour').toDate()
 
     // prevent adding event in the past
     if (date < new Date()) {
-      alert('Event cannot be in the past')
-
+      enqueueSnackbar('Event cannot be in the past', { variant: 'error' })
       return
     }
 
@@ -79,16 +120,19 @@ export default function CalendarPage() {
         if (dayjs(date).isBetween(dayjs(event.start), dayjs(event.end))) {
           return true
         }
+        if (dayjs(end).isBetween(dayjs(event.start), dayjs(event.end))) {
+          return true
+        }
         return false
       })
     ) {
-      alert('Event already exists')
-
+      enqueueSnackbar('Event already exists at that room in that time range', {
+        variant: 'error',
+      })
       return
     }
 
     // if there is no event, add one for 1 hour
-    const end = dayjs(date).add(1, 'hour').toDate()
 
     try {
       await createBooking({
@@ -101,6 +145,9 @@ export default function CalendarPage() {
       })
     } catch (error) {
       console.log(error)
+      enqueueSnackbar(`Error creating booking: ${error.message}`, {
+        variant: 'error',
+      })
     }
 
     refetchBookings()
@@ -117,10 +164,21 @@ export default function CalendarPage() {
         height: '98dvh',
       }}
     >
+      <Modal
+        title='Delete booking'
+        open={selectedBooking !== null}
+        onOk={handleDeleteBooking}
+        onCancel={() => setSelectedBooking(null)}
+      >
+        <p>Delete booking?</p>
+        <p>
+          This action cannot be undone. Please confirm that you want to delete
+          this booking.
+        </p>
+      </Modal>
       <Flex justify='center' alignItems='center' gap={2}>
         <Select
-          // defaultValue='lucy'
-          // style={{ width: 120 }}
+          style={{ minWidth: 120 }}
           value={room}
           onChange={(value) => setRoom(value)}
           loading={roomsIsLoading}
@@ -130,6 +188,7 @@ export default function CalendarPage() {
           }))}
         />
         <Select
+          style={{ minWidth: 120 }}
           defaultValue={initialCalendarView}
           onChange={(value) => handleViewChange(value)}
           options={[
@@ -185,7 +244,8 @@ export default function CalendarPage() {
         eventResizableFromStart={false}
         droppable={false}
         eventClick={(info) => {
-          console.log(info)
+          const booking = getBookingById(info.event.id)
+          booking && setSelectedBooking(booking.id)
         }}
       />
       {/* </div> */}

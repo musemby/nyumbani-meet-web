@@ -74,3 +74,17 @@ export const useCreateBooking = () => {
     }
   )
 }
+
+export const useDeleteBooking = () => {
+  const queryClient = useQueryClient()
+  const { remove } = useBookingApi()
+
+  return useMutation({
+    mutationFn: ({ uuid }: { uuid: string }) => {
+      return remove(`/bookings/${uuid}/delete/`)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['Booking'])
+    },
+  })
+}

@@ -1,5 +1,12 @@
-import Layout from '../src/components/layout'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 
 export default function HomePage() {
-  return <Layout>Welcome! Click the links above</Layout>
+  const router = useRouter()
+
+  useEffect(() => {
+    router.push('/calendar')
+  }, [])
+
+  return <></>
 }
