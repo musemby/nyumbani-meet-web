@@ -1,26 +1,36 @@
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import dayjs from 'dayjs'
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import dayjs from "dayjs";
 import {
   useBookingList,
   useCreateBooking,
   useDeleteBooking,
-} from '../src/api-client/bookings'
-import { useUser } from '../src/api-client/user'
-import { useRoomList } from '../src/api-client/rooms'
-import { useEffect, useRef, useState } from 'react'
-import { Select, Flex, Divider, Modal } from 'antd'
-import { useSnackbar } from 'notistack'
+} from "../src/api-client/bookings";
+import { useUser } from "../src/api-client/user";
+import { useRoomList } from "../src/api-client/rooms";
+import { useEffect, useRef, useState } from "react";
+import {
+  Select,
+  Flex,
+  Divider,
+  Modal,
+  TimePicker,
+  Input,
+  Typography,
+} from "antd";
+import { useSnackbar } from "notistack";
 
-var isBetween = require('dayjs/plugin/isBetween')
-dayjs.extend(isBetween)
+const { Text, Link } = Typography;
+
+var isBetween = require("dayjs/plugin/isBetween");
+dayjs.extend(isBetween);
 
 const defaultEvent = {
   editable: false,
   overlap: false,
-}
+};
 
 function bookingToEvent(booking) {
   return {
@@ -30,21 +40,24 @@ function bookingToEvent(booking) {
     start: dayjs(booking.start_time).toDate(),
     end: dayjs(booking.end_time).toDate(),
     resourceId: booking.room,
-  }
+  };
 }
 
 export default function CalendarPage() {
-  const { enqueueSnackbar } = useSnackbar()
-  const calendarRef = useRef(null)
-  const initialCalendarView = 'timeGridDay'
-  const [room, setRoom] = useState(null)
-  const [selectedBooking, setSelectedBooking] = useState(null)
+  const { enqueueSnackbar } = useSnackbar();
+  const calendarRef = useRef(null);
+  const initialCalendarView = "timeGridDay";
+  const [room, setRoom] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedStartTime, setSelectedStartTime] = useState(null);
+  const [newEventsDates, setNewEventsDates] = useState(null);
+  const [newEventName, setNewEventName] = useState(null);
 
-  const { mutateAsync: createBooking } = useCreateBooking()
-  const { mutateAsync: deleteBooking } = useDeleteBooking()
+  const { mutateAsync: createBooking } = useCreateBooking();
+  const { mutateAsync: deleteBooking } = useDeleteBooking();
 
   function getBookingById(bookingId) {
-    return bookings?.find((booking) => booking.id === bookingId)
+    return bookings?.find((booking) => booking.id === bookingId);
   }
 
   const {
@@ -52,120 +65,215 @@ export default function CalendarPage() {
     isLoading: bookingsIsLoading,
     isError: bookingsIsError,
     refetch: refetchBookings,
-  } = useBookingList()
+  } = useBookingList();
 
   const {
     data: rooms,
     isLoading: roomsIsLoading,
     isError: roomsIsError,
     refetch: refetchRooms,
-  } = useRoomList()
+  } = useRoomList();
 
   const {
     data: user,
     isLoading: userIsLoading,
     isError: userIsError,
     refetch: refetchUser,
-  } = useUser('me')
-
-  console.log('user', user)
+  } = useUser("me");
 
   useEffect(() => {
     if (!room) {
-      rooms?.length > 0 && setRoom(rooms[0].id)
+      console.log(rooms);
+      rooms?.length > 0 && setRoom(rooms[0].id);
     }
-  }, [rooms])
+  }, [rooms]);
 
   const bookingsForRoom =
-    bookings?.filter((booking) => booking.room === room) || []
-  const events = bookingsForRoom.map((booking) => bookingToEvent(booking)) || []
+    bookings?.filter((booking) => booking.room === room) || [];
+  const events =
+    bookingsForRoom.map((booking) => bookingToEvent(booking)) || [];
 
   async function handleDeleteBooking() {
     if (!selectedBooking) {
-      enqueueSnackbar('No booking selected', { variant: 'error' })
-      return
+      enqueueSnackbar("No booking selected", { variant: "error" });
+      return;
     }
 
     try {
-      await deleteBooking({ uuid: selectedBooking })
-      setSelectedBooking(null)
-      enqueueSnackbar('Booking deleted', { variant: 'success' })
+      await deleteBooking({ uuid: selectedBooking });
+      setSelectedBooking(null);
+      enqueueSnackbar("Booking deleted", { variant: "success" });
     } catch (error) {
       enqueueSnackbar(`Error deleting booking: ${error.message}`, {
-        variant: 'error',
-      })
-      console.log(error)
+        variant: "error",
+      });
+      console.log(error);
     }
-    refetchBookings()
+    refetchBookings();
   }
 
   const handleDateClick = async (dateClickInfo) => {
-    console.log(dateClickInfo)
+    console.log(dateClickInfo);
+    refetchBookings();
 
     const {
       date,
       // jsEvent, view
-    } = dateClickInfo
-    const end = dayjs(date).add(1, 'hour').toDate()
+    } = dateClickInfo;
 
-    // prevent adding event in the past
-    if (date < new Date()) {
-      enqueueSnackbar('Event cannot be in the past', { variant: 'error' })
-      return
-    }
+    const end = dayjs(date).add(15, "minute").toDate();
+
+    // // prevent adding event in the past
+    // if (date < new Date()) {
+    //   enqueueSnackbar("Event cannot be in the past", { variant: "error" });
+    //   return;
+    // }
 
     // check if there is an event in the clicked date hour
     if (
       events.find((event) => {
         if (dayjs(date).isBetween(dayjs(event.start), dayjs(event.end))) {
-          return true
+          return true;
         }
         if (dayjs(end).isBetween(dayjs(event.start), dayjs(event.end))) {
-          return true
+          return true;
         }
-        return false
+        return false;
       })
     ) {
-      enqueueSnackbar('Event already exists at that room in that time range', {
-        variant: 'error',
-      })
-      return
+      enqueueSnackbar("Event already exists at that room in that time range", {
+        variant: "error",
+      });
+      return;
     }
 
-    // if there is no event, add one for 1 hour
+    setNewEventsDates([dayjs(date), dayjs(date).add(1, "hour")]);
+    setSelectedStartTime(date);
+  };
 
+  async function handleSubmitNewBooking() {
+    console.log("submit");
     try {
       await createBooking({
         data: {
-          start_time: date,
-          end_time: end,
-          description: 'tenant 1 booking',
+          start_time: newEventsDates[0],
+          end_time: newEventsDates[1],
+          description: newEventName || "Booking",
           room: room,
         },
-      })
+      });
+      enqueueSnackbar("Booking created", { variant: "success" });
+      resetTime();
+      setNewEventName(null);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       enqueueSnackbar(`Error creating booking: ${error.message}`, {
-        variant: 'error',
-      })
+        variant: "error",
+      });
     }
-
-    refetchBookings()
+    refetchBookings();
   }
 
   function handleViewChange(view) {
-    console.log(view)
-    calendarRef.current && calendarRef.current.getApi().changeView(view)
+    console.log(view);
+    calendarRef.current && calendarRef.current.getApi().changeView(view);
+  }
+
+  function validateNewEventDates() {
+    const errors = [];
+    if (!newEventsDates || newEventsDates.length !== 2) {
+      return errors;
+    }
+
+    const start = dayjs(newEventsDates[0]);
+    const end = dayjs(newEventsDates[1]);
+
+    // should be later than now
+    if (start.isBefore(dayjs())) {
+      errors.push("The start date must be in the future");
+    }
+
+    // end should be anytime today
+    if (end.isBefore(dayjs())) {
+      errors.push("The end date must be in the future");
+    }
+
+    if (start.isAfter(end)) {
+      errors.push("The start date must be before the end date");
+    }
+
+    events.forEach((event) => {
+      if (event.resourceId == room) {
+        if (
+          dayjs(event.start).isBetween(start, end) ||
+          dayjs(event.end).isBetween(start, end)
+        ) {
+          errors.push("There is already an event in that time range");
+        }
+      }
+    });
+
+    return [...new Set(errors)];
+  }
+
+  const newEventErrors = validateNewEventDates() || [];
+
+  function resetTime() {
+    setSelectedStartTime(null);
+    setNewEventsDates(null);
   }
 
   return (
     <div
       style={{
-        height: '98dvh',
+        height: "98dvh",
       }}
     >
       <Modal
-        title='Delete booking'
+        title={`Create a booking on ${dayjs(selectedStartTime).format(
+          "dddd, MMMM Do"
+        )}
+        in room:  ${(rooms || []).find((rm) => rm.id === room)?.name || ""}
+      
+        `}
+        open={!!selectedStartTime}
+        onCancel={resetTime}
+        okButtonProps={{ disabled: newEventErrors.length > 0 }}
+        onOk={handleSubmitNewBooking}
+      >
+        <Flex gap={4} vertical>
+          <Text>Time range</Text>
+
+          <TimePicker.RangePicker
+            size="large"
+            format="HH:mm"
+            value={newEventsDates}
+            minuteStep={15}
+            onChange={(dates, dateStrings) => {
+              setNewEventsDates(dates);
+            }}
+            status={newEventErrors.length ? "error" : ""}
+            needConfirm={false}
+          />
+          <Flex gap={2} vertical>
+            {newEventErrors.map((error, index) => (
+              <Text key={index} type="danger">
+                {error}
+              </Text>
+            ))}
+          </Flex>
+
+          <Text>Event name</Text>
+          <Input
+            placeholder="Event name"
+            size="large"
+            value={newEventName}
+            onChange={(e) => setNewEventName(e.target.value)}
+          />
+        </Flex>
+      </Modal>
+      <Modal
+        title="Delete booking"
         open={selectedBooking !== null}
         onOk={handleDeleteBooking}
         onCancel={() => setSelectedBooking(null)}
@@ -176,7 +284,7 @@ export default function CalendarPage() {
           this booking.
         </p>
       </Modal>
-      <Flex justify='center' alignItems='center' gap={2}>
+      <Flex justify="center" alignItems="center" gap={2}>
         <Select
           style={{ minWidth: 120 }}
           value={room}
@@ -193,14 +301,14 @@ export default function CalendarPage() {
           onChange={(value) => handleViewChange(value)}
           options={[
             // { value: 'resourceTimelineWeek', label: 'ResourceTimelineWeek' },
-            { value: 'dayGridMonth', label: 'Month view' },
-            { value: 'timeGridWeek', label: 'Week view' },
-            { value: 'timeGridDay', label: 'Day view' },
+            { value: "dayGridMonth", label: "Month view" },
+            { value: "timeGridWeek", label: "Week view" },
+            { value: "timeGridDay", label: "Day view" },
           ]}
         />
       </Flex>
 
-      <div style={{ height: '10px' }} />
+      <div style={{ height: "10px" }} />
       <Divider />
       {/* <div className='calendar-container'> */}
       <FullCalendar
@@ -212,9 +320,9 @@ export default function CalendarPage() {
           timeGridPlugin,
         ]}
         headerToolbar={{
-          center: '',
-          right: 'title',
-          left: 'prev,next today',
+          center: "",
+          right: "title",
+          left: "prev,next today",
           // right: 'resourceTimelineWeek,dayGridMonth,timeGridWeek,timeGridDay',
         }}
         initialView={initialCalendarView}
@@ -230,25 +338,25 @@ export default function CalendarPage() {
         // initialEvents={events}
         events={events}
         dateClick={handleDateClick}
-        height='100%'
-        width='100%'
-        selectAllow={() => console.log('select allow')}
+        height="100%"
+        width="100%"
+        selectAllow={() => console.log("select allow")}
         validRange={() => {
           return {
-            start: dayjs().subtract(2, 'hour').toDate(),
-            end: dayjs().add(5, 'day').toDate(),
-          }
+            start: dayjs().subtract(2, "hour").toDate(),
+            end: dayjs().add(5, "day").toDate(),
+          };
         }}
         eventDurationEditable={false}
         eventStartEditable={false}
         eventResizableFromStart={false}
         droppable={false}
         eventClick={(info) => {
-          const booking = getBookingById(info.event.id)
-          booking && setSelectedBooking(booking.id)
+          const booking = getBookingById(info.event.id);
+          booking && setSelectedBooking(booking.id);
         }}
       />
       {/* </div> */}
     </div>
-  )
+  );
 }
