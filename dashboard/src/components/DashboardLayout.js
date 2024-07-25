@@ -47,6 +47,12 @@ const App = ({ children }) => {
       getItem("Add New", "/rooms/create", false),
     ]),
     getItem("Tenants", "/tenants", false, <TeamOutlined />),
+    getItem("Restaurants", "/restaurants", false, <BankOutlined />, [
+      getItem("View All", "/restaurants", false),
+      getItem("Add New", "/restaurants/create", false),
+      getItem("View All Menus", "/menus", false),
+      getItem("Add New Menu", "/menus/create", false),
+    ]),
   ];
 
   function getAllItems() {

@@ -5,26 +5,28 @@ import { Button, Form, Input } from "antd";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useSnackbar } from "notistack";
-import { useCreateRoom } from "../../src/api-client/rooms";
+import { useCreateRestaurant } from "../../src/api-client/restaurants";
 
 const App = () => {
   const router = useRouter();
   const snackbar = useSnackbar();
-  const { mutateAsync: createRoom, isLoading: createRoomIsLoading } =
-    useCreateRoom();
+  const {
+    mutateAsync: createRestaurant,
+    isLoading: createRestaurantIsLoading,
+  } = useCreateRestaurant();
 
   const onFinish = async (values) => {
     try {
       console.log("values", values);
-      await createRoom({ data: values });
-      snackbar.enqueueSnackbar("Room created successfully", {
+      await createRestaurant({ data: values });
+      snackbar.enqueueSnackbar("Restaurant created successfully", {
         variant: "success",
       });
 
-      router.push("/rooms");
+      router.push("/restaurants");
     } catch (error) {
       console.log(error);
-      snackbar.enqueueSnackbar(`Error creating room ${error}`, {
+      snackbar.enqueueSnackbar(`Error creating restaurant ${error}`, {
         variant: "error",
       });
     }
@@ -67,19 +69,19 @@ const App = () => {
         autoComplete="off"
       >
         <Form.Item
-          label="Room Name"
+          label="Restaurant Name"
           name="name"
           rules={[
             {
               required: true,
-              message: "Please input the room name",
+              message: "Please input the restaurant name",
             },
           ]}
         >
           <Input />
         </Form.Item>
 
-        <Form.Item label="Room Description" name="description" rules={[]}>
+        <Form.Item label="Restaurant Description" name="description" rules={[]}>
           <Input />
         </Form.Item>
 
@@ -87,7 +89,7 @@ const App = () => {
           <Button
             type="primary"
             htmlType="submit"
-            disabled={createRoomIsLoading}
+            disabled={createRestaurantIsLoading}
           >
             Submit
           </Button>
