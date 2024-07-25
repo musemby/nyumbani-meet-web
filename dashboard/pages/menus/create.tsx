@@ -103,17 +103,44 @@ const App = () => {
           <Input />
         </Form.Item>
 
-        <Form.Item label="Menu Description" name="description" rules={[]}>
+        <Form.Item
+          label="Menu Description"
+          name="description"
+          rules={[
+            {
+              required: true,
+              message: "Please input the menu description",
+            },
+          ]}
+        >
           <Input />
         </Form.Item>
 
-        <Form.Item label="Menu File" name="file" rules={[]}>
+        <Form.Item
+          label="Menu File"
+          name="file"
+          rules={[
+            {
+              required: true,
+              message: "Required",
+            },
+          ]}
+        >
           <Upload name="file">
             <Button icon={<UploadOutlined />}>Click to Upload</Button>
           </Upload>
         </Form.Item>
 
-        <Form.Item label="Restaurant" name="restaurant" rules={[]}>
+        <Form.Item
+          label="Restaurant"
+          name="restaurant"
+          rules={[
+            {
+              required: true,
+              message: "Required",
+            },
+          ]}
+        >
           <Select
             // defaultValue="lucy"
             // style={{ width: 120 }}

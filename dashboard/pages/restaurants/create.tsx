@@ -81,7 +81,16 @@ const App = () => {
           <Input />
         </Form.Item>
 
-        <Form.Item label="Restaurant Description" name="description" rules={[]}>
+        <Form.Item
+          label="Restaurant Description"
+          name="description"
+          rules={[
+            {
+              required: true,
+              message: "Please input the restaurant description",
+            },
+          ]}
+        >
           <Input />
         </Form.Item>
 
