@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import {
   useBookingList,
   useCreateBooking,
+  useUpdateBooking,
   useDeleteBooking,
 } from "../src/api-client/bookings";
 import { useUser } from "../src/api-client/user";
@@ -18,6 +19,7 @@ import {
   Modal,
   TimePicker,
   Input,
+  Button,
   Typography,
 } from "antd";
 import { useSnackbar } from "notistack";
@@ -55,6 +57,7 @@ export default function CalendarPage() {
 
   const { mutateAsync: createBooking } = useCreateBooking();
   const { mutateAsync: deleteBooking } = useDeleteBooking();
+  const { mutateAsync: updateBooking } = useUpdateBooking();
 
   function getBookingById(bookingId) {
     return bookings?.find((booking) => booking.id === bookingId);
@@ -109,6 +112,7 @@ export default function CalendarPage() {
       });
       console.log(error);
     }
+    resetState();
     refetchBookings();
   }
 
@@ -154,20 +158,33 @@ export default function CalendarPage() {
   async function handleSubmitNewBooking() {
     console.log("submit");
     try {
-      await createBooking({
-        data: {
-          start_time: newEventsDates[0],
-          end_time: newEventsDates[1],
-          description: newEventName || "Booking",
-          room: room,
-        },
-      });
-      enqueueSnackbar("Booking created", { variant: "success" });
-      resetTime();
+      if (selectedBooking) {
+        await updateBooking({
+          uuid: selectedBooking,
+          data: {
+            start_time: newEventsDates[0],
+            end_time: newEventsDates[1],
+            description: newEventName || "Booking",
+          },
+        });
+        enqueueSnackbar("Booking updated", { variant: "success" });
+        resetState();
+      } else {
+        await createBooking({
+          data: {
+            start_time: newEventsDates[0],
+            end_time: newEventsDates[1],
+            description: newEventName || "Booking",
+            room: room,
+          },
+        });
+      }
+      enqueueSnackbar("Booking saved", { variant: "success" });
+      resetState();
       setNewEventName(null);
     } catch (error) {
       console.log(error);
-      enqueueSnackbar(`Error creating booking: ${error.message}`, {
+      enqueueSnackbar(`Error saving booking: ${error.message}`, {
         variant: "error",
       });
     }
@@ -203,11 +220,16 @@ export default function CalendarPage() {
     }
 
     events.forEach((event) => {
-      if (event.resourceId == room) {
+      if (event.resourceId == room && event.id !== selectedBooking) {
         if (
           dayjs(event.start).isBetween(start, end) ||
           dayjs(event.end).isBetween(start, end)
         ) {
+          errors.push("There is already an event in that time range");
+        }
+
+        // check if they have a similar start and end time
+        if (dayjs(event.start).isSame(start) || dayjs(event.end).isSame(end)) {
           errors.push("There is already an event in that time range");
         }
       }
@@ -218,9 +240,22 @@ export default function CalendarPage() {
 
   const newEventErrors = validateNewEventDates() || [];
 
-  function resetTime() {
+  function resetState() {
+    setSelectedBooking(null);
     setSelectedStartTime(null);
     setNewEventsDates(null);
+    setNewEventName(null);
+  }
+
+  function handleEventClick(info) {
+    const booking = getBookingById(info.event.id);
+    if (!booking) {
+      return;
+    }
+    setSelectedBooking(booking.id);
+    setSelectedStartTime(dayjs(booking.start_time).toDate());
+    setNewEventsDates([dayjs(booking.start_time), dayjs(booking.end_time)]);
+    setNewEventName(booking.description);
   }
 
   return (
@@ -237,9 +272,28 @@ export default function CalendarPage() {
       
         `}
         open={!!selectedStartTime}
-        onCancel={resetTime}
-        okButtonProps={{ disabled: newEventErrors.length > 0 }}
-        onOk={handleSubmitNewBooking}
+        onCancel={resetState}
+        footer={[
+          <Button key="back" onClick={resetState}>
+            Cancel
+          </Button>,
+          <>
+            {selectedBooking && (
+              <Button danger onClick={handleDeleteBooking}>
+                Delete
+              </Button>
+            )}
+          </>,
+          <Button
+            key="submit"
+            type="primary"
+            // loading={loading}
+            disabled={newEventErrors.length > 0}
+            onClick={handleSubmitNewBooking}
+          >
+            Save
+          </Button>,
+        ]}
       >
         <Flex gap={4} vertical>
           <Text>Time range</Text>
@@ -274,7 +328,7 @@ export default function CalendarPage() {
       </Modal>
       <Modal
         title="Delete booking"
-        open={selectedBooking !== null}
+        // open={selectedBooking !== null}
         onOk={handleDeleteBooking}
         onCancel={() => setSelectedBooking(null)}
       >
@@ -351,10 +405,7 @@ export default function CalendarPage() {
         eventStartEditable={false}
         eventResizableFromStart={false}
         droppable={false}
-        eventClick={(info) => {
-          const booking = getBookingById(info.event.id);
-          booking && setSelectedBooking(booking.id);
-        }}
+        eventClick={handleEventClick}
       />
       {/* </div> */}
     </div>
