@@ -3,17 +3,19 @@ import {
   TeamOutlined,
   BankOutlined,
   CalendarOutlined,
+  LayoutOutlined,
+  PoweroffOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 const { Content, Footer, Sider } = Layout;
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import { useUser } from "../api-client/user";
-import { on } from "events";
 
 const App = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const { authLoading, isAuthenticated } = useAuth();
+  const { authLoading, isAuthenticated, logout } = useAuth();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -36,23 +38,32 @@ const App = ({ children }) => {
     };
 
     if (!children) {
-      returnItem.onClick = () => router.push(key);
+      if (key === "/logout") {
+        returnItem.onClick = () => logout();
+      } else {
+        returnItem.onClick = () => router.push(key);
+      }
     }
     return returnItem;
   }
   const items = [
-    getItem("calendar", "/calendar", false, <CalendarOutlined />),
-    getItem("Room", "/rooms", false, <BankOutlined />, [
+    getItem("Bookings", "/calendar", false, <CalendarOutlined />),
+    getItem("Building", "/buildings", false, <BankOutlined />, [
+      getItem("View All", "/buildings", false),
+      getItem("Add New", "/buildings/create", false),
+    ]),
+    getItem("Room", "/rooms", false, <ShopOutlined />, [
       getItem("View All", "/rooms", false),
       getItem("Add New", "/rooms/create", false),
     ]),
     getItem("Tenants", "/tenants", false, <TeamOutlined />),
-    getItem("Restaurants", "/restaurants", false, <BankOutlined />, [
+    getItem("Restaurants", "/restaurants", false, <LayoutOutlined />, [
       getItem("View All", "/restaurants", false),
       getItem("Add New", "/restaurants/create", false),
       getItem("View All Menus", "/menus", false),
       getItem("Add New Menu", "/menus/create", false),
     ]),
+    getItem("Logout", "/logout", false, <PoweroffOutlined />),
   ];
 
   function getAllItems() {

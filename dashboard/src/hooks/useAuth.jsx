@@ -1,72 +1,97 @@
-import { useState } from 'react'
-import { SERVER_URL } from '../constants'
-import { useSnackbar } from 'notistack'
-import { useEffect } from 'react'
+import { useState } from "react";
+import { SERVER_URL } from "../constants";
+import { useSnackbar } from "notistack";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 function useAuth() {
-  const snackbar = useSnackbar()
-  const [token, setToken] = useState()
-  const [authLoading, setAuthLoading] = useState(false)
+  const snackbar = useSnackbar();
+  const [token, setToken] = useState();
+  const [authLoading, setAuthLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    getToken()
-  }, [])
+    getToken();
+  }, []);
 
   async function authenticateWithServer(phone, password) {
-    setAuthLoading(true)
-    deleteToken()
+    setAuthLoading(true);
+    deleteToken();
     try {
       const response = await fetch(`${SERVER_URL}/auth/nyumani_core/login/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           phone_number: phone,
           password,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
       if (data.token) {
-        console.log('Save token')
-        saveToken(data.token)
+        console.log("Save token");
+        saveToken(data.token);
       } else {
-        console.log('Token not found')
-        deleteToken()
+        console.log("Token not found");
+        deleteToken();
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       snackbar.enqueueSnackbar(`Error saving form ${error}`, {
-        variant: 'error',
-      })
-      deleteToken()
+        variant: "error",
+      });
+      deleteToken();
     }
-    setAuthLoading(false)
-    return null
+    setAuthLoading(false);
+    return null;
+  }
+
+  async function logoutWithServer() {
+    setAuthLoading(true);
+
+    try {
+      await fetch(`${SERVER_URL}/auth/nyumani_core/logout/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      snackbar.enqueueSnackbar(`Error logging out ${error}`, {
+        variant: "error",
+      });
+    }
+    deleteToken();
+    setAuthLoading(false);
+    router.push("/login");
+    return null;
   }
 
   function saveToken(token) {
-    setToken(token)
-    localStorage.setItem('token', token)
+    setToken(token);
+    localStorage.setItem("token", token);
   }
 
   function deleteToken() {
-    setToken(null)
-    localStorage.removeItem('token')
+    setToken(null);
+    localStorage.removeItem("token");
   }
 
   function getToken() {
     if (!token) {
-      const foundToken = localStorage.getItem('token')
+      const foundToken = localStorage.getItem("token");
       if (foundToken) {
-        setToken(foundToken)
-        return foundToken
+        setToken(foundToken);
+        return foundToken;
       } else {
-        return null
+        return null;
       }
     }
-    return token
+    return token;
   }
 
   return {
@@ -77,6 +102,7 @@ function useAuth() {
     deleteToken,
     authenticateWithServer,
     getToken,
-  }
+    logout: logoutWithServer,
+  };
 }
-export default useAuth
+export default useAuth;
