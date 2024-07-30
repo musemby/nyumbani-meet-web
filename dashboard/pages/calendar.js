@@ -21,8 +21,10 @@ import {
   Input,
   Button,
   Typography,
+  Table,
 } from "antd";
 import { useSnackbar } from "notistack";
+import { useUserList } from "../src/api-client/user";
 
 const { Text, Link } = Typography;
 
@@ -49,9 +51,11 @@ export default function CalendarPage() {
   const { enqueueSnackbar } = useSnackbar();
   const calendarRef = useRef(null);
   const initialCalendarView = "timeGridDay";
+  const [view, setView] = useState(initialCalendarView);
   const [room, setRoom] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [selectedStartTime, setSelectedStartTime] = useState(null);
+  const [selectedTenant, setSelectedTenant] = useState(null);
   const [newEventsDates, setNewEventsDates] = useState(null);
   const [newEventName, setNewEventName] = useState(null);
 
@@ -62,6 +66,13 @@ export default function CalendarPage() {
   function getBookingById(bookingId) {
     return bookings?.find((booking) => booking.id === bookingId);
   }
+
+  const {
+    data: users,
+    isLoading: usersIsLoading,
+    // isError: usersIsError,
+    // refetch: refetchUsers,
+  } = useUserList();
 
   const {
     data: bookings,
@@ -176,6 +187,7 @@ export default function CalendarPage() {
             end_time: newEventsDates[1],
             description: newEventName || "Booking",
             room: room,
+            tenant: selectedTenant,
           },
         });
       }
@@ -193,7 +205,10 @@ export default function CalendarPage() {
 
   function handleViewChange(view) {
     console.log(view);
-    calendarRef.current && calendarRef.current.getApi().changeView(view);
+    setView(view);
+    if (view !== "list") {
+      calendarRef.current && calendarRef.current.getApi().changeView(view);
+    }
   }
 
   function validateNewEventDates() {
@@ -245,6 +260,7 @@ export default function CalendarPage() {
     setSelectedStartTime(null);
     setNewEventsDates(null);
     setNewEventName(null);
+    setSelectedTenant(null);
   }
 
   function handleEventClick(info) {
@@ -257,6 +273,8 @@ export default function CalendarPage() {
     setNewEventsDates([dayjs(booking.start_time), dayjs(booking.end_time)]);
     setNewEventName(booking.description);
   }
+
+  // TODO: Move form to separate component
 
   return (
     <div
@@ -324,6 +342,23 @@ export default function CalendarPage() {
             value={newEventName}
             onChange={(e) => setNewEventName(e.target.value)}
           />
+
+          {user && user.is_admin && !selectedBooking && (
+            <>
+              <Text>Tenant</Text>
+              <Select
+                size="large"
+                value={selectedTenant}
+                onChange={(value) => setSelectedTenant(value)}
+                options={
+                  users?.map((tenant) => ({
+                    value: tenant.id,
+                    label: `${tenant.phone_number}`,
+                  })) || []
+                }
+              />
+            </>
+          )}
         </Flex>
       </Modal>
       <Modal
@@ -358,6 +393,7 @@ export default function CalendarPage() {
             { value: "dayGridMonth", label: "Month view" },
             { value: "timeGridWeek", label: "Week view" },
             { value: "timeGridDay", label: "Day view" },
+            { value: "list", label: "List view" },
           ]}
         />
       </Flex>
@@ -365,48 +401,86 @@ export default function CalendarPage() {
       <div style={{ height: "10px" }} />
       <Divider />
       {/* <div className='calendar-container'> */}
-      <FullCalendar
-        ref={calendarRef}
-        plugins={[
-          // resourceTimelinePlugin,
-          dayGridPlugin,
-          interactionPlugin,
-          timeGridPlugin,
-        ]}
-        headerToolbar={{
-          center: "",
-          right: "title",
-          left: "prev,next today",
-          // right: 'resourceTimelineWeek,dayGridMonth,timeGridWeek,timeGridDay',
-        }}
-        initialView={initialCalendarView}
-        nowIndicator={true}
-        editable={true}
-        selectable={false}
-        selectMirror={false}
-        resources={rooms?.map((room) => ({
-          id: room.id,
-          title: room.name,
-          // eventColor: room.color,
-        }))}
-        // initialEvents={events}
-        events={events}
-        dateClick={handleDateClick}
-        height="100%"
-        width="100%"
-        selectAllow={() => console.log("select allow")}
-        validRange={() => {
-          return {
-            start: dayjs().subtract(2, "hour").toDate(),
-            end: dayjs().add(5, "day").toDate(),
-          };
-        }}
-        eventDurationEditable={false}
-        eventStartEditable={false}
-        eventResizableFromStart={false}
-        droppable={false}
-        eventClick={handleEventClick}
-      />
+
+      {view === "list" ? (
+        <>
+          <Table
+            style={{
+              margin: "20px auto",
+            }}
+            dataSource={
+              bookings.filter((booking) => booking.room == room) || []
+            }
+            bordered
+            title={() => "Bookings"}
+            loading={bookingsIsLoading}
+            columns={[
+              {
+                title: "Description",
+                dataIndex: "description",
+                key: "description",
+              },
+              {
+                title: "Start Time",
+                dataIndex: "start_time",
+                key: "start_time",
+                render: (text) =>
+                  dayjs(text).format("dddd, MMMM Do YYYY, h:mm a"),
+              },
+              {
+                title: "End Time",
+                dataIndex: "end_time",
+                key: "end_time",
+                render: (text) =>
+                  dayjs(text).format("dddd, MMMM Do YYYY, h:mm a"),
+              },
+            ]}
+          />
+        </>
+      ) : (
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[
+            // resourceTimelinePlugin,
+            dayGridPlugin,
+            interactionPlugin,
+            timeGridPlugin,
+          ]}
+          headerToolbar={{
+            center: "",
+            right: "title",
+            left: "prev,next today",
+            // right: 'resourceTimelineWeek,dayGridMonth,timeGridWeek,timeGridDay',
+          }}
+          initialView={initialCalendarView}
+          nowIndicator={true}
+          editable={true}
+          selectable={false}
+          selectMirror={false}
+          resources={rooms?.map((room) => ({
+            id: room.id,
+            title: room.name,
+            // eventColor: room.color,
+          }))}
+          // initialEvents={events}
+          events={events}
+          dateClick={handleDateClick}
+          height="100%"
+          width="100%"
+          selectAllow={() => console.log("select allow")}
+          validRange={() => {
+            return {
+              start: dayjs().subtract(2, "hour").toDate(),
+              end: dayjs().add(5, "day").toDate(),
+            };
+          }}
+          eventDurationEditable={false}
+          eventStartEditable={false}
+          eventResizableFromStart={false}
+          droppable={false}
+          eventClick={handleEventClick}
+        />
+      )}
       {/* </div> */}
     </div>
   );
