@@ -1,26 +1,27 @@
-import { useApi } from './useApi'
+import { useApi } from "./useApi";
 
 type DefaultApiListParams = {
-  limit?: number
-  offset?: number
-}
+  limit?: number;
+  offset?: number;
+};
 
 interface UserType {
-  id: number
-  phone_number: string
-  is_admin: boolean
-  is_staff: boolean
+  id: number;
+  name: string | null;
+  phone_number: string;
+  is_admin: boolean;
+  is_staff: boolean;
 }
 
 const useUserApi = () => {
-  return useApi('/auth/users')
-}
+  return useApi("/auth/users");
+};
 
 export const useUser = (id?: string, enabled?: boolean) => {
-  console.log(!!id, enabled)
-  const { useFetch } = useUserApi()
+  console.log(!!id, enabled);
+  const { useFetch } = useUserApi();
   return useFetch<UserType>(
-    ['User', id],
+    ["User", id],
     `/${id}/`,
     {},
     {},
@@ -29,19 +30,19 @@ export const useUser = (id?: string, enabled?: boolean) => {
       enabled: !!id && enabled,
       refetchInterval: enabled ? 1000 * 2 : undefined,
     }
-  )
-}
+  );
+};
 
 export const useUserList = (params: DefaultApiListParams = {}) => {
-  const { useFetch } = useUserApi()
+  const { useFetch } = useUserApi();
   return useFetch<UserType[]>(
-    ['User', JSON.stringify(params)],
-    '/',
+    ["User", JSON.stringify(params)],
+    "/",
     {},
     params,
     {},
     {
       refetchInterval: 1000 * 15,
     }
-  )
-}
+  );
+};

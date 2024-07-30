@@ -79,7 +79,9 @@ export default function CalendarPage() {
     isLoading: bookingsIsLoading,
     isError: bookingsIsError,
     refetch: refetchBookings,
-  } = useBookingList();
+  } = useBookingList({
+    room__in: `${room}`,
+  });
 
   const {
     data: rooms,
@@ -409,7 +411,7 @@ export default function CalendarPage() {
               margin: "20px auto",
             }}
             dataSource={
-              bookings.filter((booking) => booking.room == room) || []
+              (bookings || []).filter((booking) => booking.room == room) || []
             }
             bordered
             title={() => "Bookings"}

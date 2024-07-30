@@ -2,8 +2,10 @@ import { useApi } from "./useApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type DefaultApiListParams = {
-  limit?: number;
-  offset?: number;
+  booked_by__in?: string | null;
+  room__in?: string | null;
+  start_time__gte?: Date | null;
+  end_time__lte?: Date | null;
 };
 
 interface BookingType {
@@ -13,15 +15,10 @@ interface BookingType {
   description?: string | null;
   organization: string;
   room: string;
-}
-
-interface BookingResponseType {
-  results: BookingType[];
-  limit: number;
-  offset: number;
-  count: number;
-  next: null;
-  previous: null;
+  room_name: string;
+  tenant_phone_number: string;
+  tenant_name: string;
+  tenant_house_number: string;
 }
 
 const useBookingApi = () => {
@@ -46,7 +43,7 @@ export const useBooking = (id?: string, enabled?: boolean) => {
 
 export const useBookingList = (params: DefaultApiListParams = {}) => {
   const { useFetch } = useBookingApi();
-  return useFetch<BookingResponseType>(
+  return useFetch<BookingType[]>(
     ["Booking", JSON.stringify(params)],
     "/bookings/",
     {},
