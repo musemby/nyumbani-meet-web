@@ -142,9 +142,6 @@ const App = () => {
           ]}
         >
           <Select
-            // defaultValue="lucy"
-            // style={{ width: 120 }}
-            // onChange={handleChange}
             options={
               restaurants?.map((restaurant) => ({
                 value: restaurant.id,

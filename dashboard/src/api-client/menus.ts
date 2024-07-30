@@ -12,6 +12,7 @@ interface MenuType {
   description?: string | null;
   restaurant: string;
   file: string;
+  is_active_menu: boolean;
 }
 
 const useMenuApi = () => {
@@ -73,6 +74,20 @@ export const useDeleteMenu = () => {
   return useMutation({
     mutationFn: ({ uuid }: { uuid: string }) => {
       return remove(`/menus/${uuid}/delete/`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["Menu"]);
+    },
+  });
+};
+
+export const useActivateMenu = () => {
+  const queryClient = useQueryClient();
+  const { update } = useMenuApi();
+
+  return useMutation({
+    mutationFn: ({ uuid }: { uuid: string }) => {
+      return update(`/active/${uuid}/set/`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["Menu"]);

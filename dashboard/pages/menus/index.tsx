@@ -1,16 +1,33 @@
 import React from "react";
-import { Table } from "antd";
-import { useMenuList } from "../../src/api-client/menus";
+import { Table, Button, Tag } from "antd";
+import { useMenuList, useActivateMenu } from "../../src/api-client/menus";
 import { SERVER_URL } from "../../src/constants";
 import { LinkOutlined } from "@ant-design/icons";
+import { useSnackbar } from "notistack";
 
 const Menus = () => {
+  const snackbar = useSnackbar();
   const {
     data: menus,
     isLoading: menusIsLoading,
     // isError: menusIsError,
-    // refetch: refetchMenus,
+    refetch: refetchMenus,
   } = useMenuList();
+
+  const { mutateAsync: activateMenu } = useActivateMenu();
+
+  async function handleActivateMenu(menuId: string) {
+    try {
+      activateMenu({ uuid: menuId });
+      snackbar.enqueueSnackbar("Menu activated", { variant: "success" });
+    } catch (error) {
+      console.log(error);
+      snackbar.enqueueSnackbar(`Error activating menu ${error}`, {
+        variant: "error",
+      });
+    }
+    refetchMenus();
+  }
 
   return (
     <>
@@ -45,6 +62,28 @@ const Menus = () => {
                 >
                   <LinkOutlined />
                 </a>
+              );
+            },
+          },
+          {
+            title: "Activate",
+            dataIndex: "id",
+            key: "id",
+            render: (id: string, row) => {
+              return (
+                <>
+                  {row.is_active_menu ? (
+                    <Tag color={"green"}>Active</Tag>
+                  ) : (
+                    <Button
+                      type="primary"
+                      onClick={() => handleActivateMenu(id)}
+                      disabled={menusIsLoading}
+                    >
+                      Activate
+                    </Button>
+                  )}
+                </>
               );
             },
           },
