@@ -1,6 +1,6 @@
-import React from 'react'
-import { Table, Tag } from 'antd'
-import { useUserList } from '../../src/api-client/user'
+import React from "react";
+import { Table, Tag } from "antd";
+import { useUserList } from "../../src/api-client/user";
 
 const Users = () => {
   const {
@@ -8,38 +8,48 @@ const Users = () => {
     isLoading: usersIsLoading,
     // isError: usersIsError,
     // refetch: refetchUsers,
-  } = useUserList()
+  } = useUserList();
 
   return (
     <>
       <Table
         style={{
-          margin: '20px auto',
+          margin: "20px auto",
         }}
         dataSource={users || []}
         bordered
-        title={() => 'Tenants'}
+        title={() => "Tenants"}
         loading={usersIsLoading}
         columns={[
           {
-            title: 'Phone',
-            dataIndex: 'phone_number',
-            key: 'phone_number',
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
           },
           {
-            title: 'Admin',
-            dataIndex: 'is_admin',
+            title: "House Number",
+            dataIndex: "house_number",
+            key: "house_number",
+          },
+          {
+            title: "Phone",
+            dataIndex: "phone_number",
+            key: "phone_number",
+          },
+          {
+            title: "Admin",
+            dataIndex: "is_admin",
             render: (text) =>
               text ? (
-                <Tag color={'green'}>Yes</Tag>
+                <Tag color={"green"}>Yes</Tag>
               ) : (
-                <Tag color={'red'}>No</Tag>
+                <Tag color={"red"}>No</Tag>
               ),
           },
         ]}
       />
     </>
-  )
-}
+  );
+};
 
-export default Users
+export default Users;
