@@ -7,12 +7,12 @@ import {
   PoweroffOutlined,
   ShopOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, theme } from "antd";
+import { Divider, Layout, Menu, theme } from "antd";
 const { Content, Footer, Sider } = Layout;
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import { useUser } from "../api-client/user";
-
+import Image from "next/image";
 const App = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const { authLoading, isAuthenticated, logout } = useAuth();
@@ -84,7 +84,22 @@ const App = ({ children }) => {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
-        <div className="demo-logo-vertical" />
+        <div
+          style={{
+            margin: "5px auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Image
+            src="/images/SecondaryIcon-Dark.png"
+            alt="logo"
+            width={50}
+            height={50}
+          />
+        </div>
+
         <Menu
           theme="dark"
           defaultSelectedKeys={["1"]}
