@@ -1,6 +1,6 @@
-import React from 'react'
-import { Table } from 'antd'
-import { useRoomList } from '../../src/api-client/rooms'
+import React from "react";
+import { Table } from "antd";
+import { useRoomList } from "../../src/api-client/rooms";
 
 const Rooms = () => {
   const {
@@ -8,33 +8,38 @@ const Rooms = () => {
     isLoading: roomsIsLoading,
     // isError: roomsIsError,
     // refetch: refetchRooms,
-  } = useRoomList()
+  } = useRoomList();
 
   return (
     <>
       <Table
         style={{
-          margin: '20px auto',
+          margin: "20px auto",
         }}
         dataSource={rooms || []}
         bordered
-        title={() => 'Rooms'}
+        title={() => "Rooms"}
         loading={roomsIsLoading}
         columns={[
           {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
           },
           {
-            title: 'Description',
-            dataIndex: 'description',
-            key: 'description',
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+          },
+          {
+            title: "Building",
+            dataIndex: "building_name",
+            key: "building",
           },
         ]}
       />
     </>
-  )
-}
+  );
+};
 
-export default Rooms
+export default Rooms;

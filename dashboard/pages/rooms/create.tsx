@@ -1,17 +1,25 @@
 "use client";
 
 import React from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { useCreateRoom } from "../../src/api-client/rooms";
+import { useBuildingList } from "../../src/api-client/buildings";
 
 const App = () => {
   const router = useRouter();
   const snackbar = useSnackbar();
   const { mutateAsync: createRoom, isLoading: createRoomIsLoading } =
     useCreateRoom();
+
+  const {
+    data: buildings,
+    isLoading: buildingsIsLoading,
+    // isError: buildingsIsError,
+    // refetch: refetchBuildings,
+  } = useBuildingList();
 
   const onFinish = async (values) => {
     try {
@@ -66,6 +74,26 @@ const App = () => {
         onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
+        <Form.Item
+          label="Building"
+          name="building"
+          rules={[
+            {
+              required: true,
+              message: "Required",
+            },
+          ]}
+        >
+          <Select
+            options={
+              buildings?.map((building) => ({
+                value: building.id,
+                label: building.name,
+              })) || []
+            }
+          />
+        </Form.Item>
+
         <Form.Item
           label="Room Name"
           name="name"
