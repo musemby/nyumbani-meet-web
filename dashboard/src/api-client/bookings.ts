@@ -21,6 +21,14 @@ interface BookingType {
   tenant_house_number: string;
 }
 
+interface BookingDashboardType {
+  past_bookings_count: number;
+  upcoming_bookings_count: number;
+  ongoing_bookings_count: number;
+  bookings_count: number;
+  upcoming_bookings: BookingType[];
+}
+
 const useBookingApi = () => {
   return useApi("/bookings");
 };
@@ -99,6 +107,20 @@ export const useUpdateBooking = () => {
         queryClient.invalidateQueries(["Booking"]);
         queryClient.invalidateQueries(["userProfile"]);
       },
+    }
+  );
+};
+
+export const useBookingDashboard = (params: DefaultApiListParams = {}) => {
+  const { useFetch } = useBookingApi();
+  return useFetch<BookingDashboardType>(
+    ["BookingDashboard", JSON.stringify(params)],
+    "/dashboard/",
+    {},
+    params,
+    {},
+    {
+      refetchInterval: 1000 * 15,
     }
   );
 };

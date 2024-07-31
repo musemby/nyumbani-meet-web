@@ -1,17 +1,11 @@
 import dayjs from "dayjs";
-import { useBookingList } from "../../src/api-client/bookings";
+import {
+  useBookingDashboard,
+  useBookingList,
+} from "../../src/api-client/bookings";
 import { useRoomList } from "../../src/api-client/rooms";
 import { useState } from "react";
-import {
-  Select,
-  Table,
-  Col,
-  Divider,
-  Row,
-  DatePicker,
-  Space,
-  Card,
-} from "antd";
+import { Select, Table, Col, Row, DatePicker, Card } from "antd";
 import { useUserList } from "../../src/api-client/user";
 
 const { RangePicker } = DatePicker;
@@ -28,6 +22,8 @@ const Users = () => {
     // isError: usersIsError,
     // refetch: refetchUsers,
   } = useUserList();
+
+  const {} = useBookingDashboard();
 
   const {
     data: bookings,

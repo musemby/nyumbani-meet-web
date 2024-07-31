@@ -6,6 +6,7 @@ import {
   LayoutOutlined,
   PoweroffOutlined,
   ShopOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
 import { Divider, Layout, Menu, theme } from "antd";
 const { Content, Footer, Sider } = Layout;
@@ -47,7 +48,11 @@ const App = ({ children }) => {
     return returnItem;
   }
   const items = [
-    getItem("Bookings", "/calendar", false, <CalendarOutlined />),
+    getItem("Home", "/dashboard", false, <HomeOutlined />),
+    getItem("Bookings", "/calendar", false, <CalendarOutlined />, [
+      getItem("Calendar", "/calendar", false),
+      getItem("List", "/calendar/list", false),
+    ]),
     getItem("Building", "/buildings", false, <BankOutlined />, [
       getItem("View All", "/buildings", false),
       getItem("Add New", "/buildings/create", false),
