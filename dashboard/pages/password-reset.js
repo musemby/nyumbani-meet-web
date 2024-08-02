@@ -9,12 +9,17 @@ import { useSnackbar } from 'notistack'
 
 const App = () => {
   const router = useRouter()
-  const { authenticateWithServer, passwordResetRequired, authLoading, isAuthenticated, token } =
+  const { resetPasswordWithServer, authLoading, isAuthenticated, token } =
     useAuth()
   const snackbar = useSnackbar()
 
   const onFinish = (values) => {
-    authenticateWithServer(values.username, values.password)
+    resetPasswordWithServer(
+      values.username,
+      values.currentPassword,
+      values.newPassword,
+      values.newPasswordConfirmation,
+    )
     console.log('Success:', values)
   }
 
@@ -25,19 +30,11 @@ const App = () => {
     console.log('Failed:', errorInfo)
   }
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log('isAuthenticated', isAuthenticated)
-      if (passwordResetRequired) {
-        router.push('/password-reset')
-        snackbar.enqueueSnackbar(`Please cahnge your password first.`, {
-          variant: "warning",
-        });
-      } else {
-      router.push('/calendar')
-      }
-    }
-  }, [isAuthenticated, router])
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push('/login')
+  //   }
+  // }, [isAuthenticated, router])
 
   return (
     <div
@@ -59,33 +56,44 @@ const App = () => {
           maxWidth: 600,
           margin: '0 auto',
         }}
-        initialValues={{
-          username: '',
-        }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete='off'
       >
+
         <Form.Item
-          label='Phone Number'
-          name='username'
+          label='Current Password'
+          name='currentPassword'
           rules={[
             {
               required: true,
-              message: 'Please input your phone number!',
+              message: 'Please input your current password!',
             },
           ]}
         >
-          <Input />
+          <Input.Password />
         </Form.Item>
 
         <Form.Item
-          label='Password'
-          name='password'
+          label='New Password'
+          name='newPassword'
           rules={[
             {
               required: true,
-              message: 'Please input your password!',
+              message: 'Please input your new password!',
+            },
+          ]}
+        >
+          <Input.Password />
+        </Form.Item>
+
+        <Form.Item
+          label='New Password Confirmation'
+          name='newPasswordConfirmation'
+          rules={[
+            {
+              required: true,
+              message: 'Please input your new password confirmation!',
             },
           ]}
         >
@@ -98,18 +106,8 @@ const App = () => {
             span: 16,
           }}
         >
-          {/* forgot password */}
-          <a href='/password-reset'>Forgot password?</a>
-        </Form.Item>
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
-        >
-          {/* forgot password */}
           <Button type='primary' htmlType='submit' disabled={authLoading}>
-            Log In
+            Submit
           </Button>
         </Form.Item>
       </Form>
