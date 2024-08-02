@@ -6,6 +6,7 @@ import useAuth from '../src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useSnackbar } from 'notistack'
+import { Link } from 'next/link'
 
 const App = () => {
   const router = useRouter()
@@ -99,7 +100,7 @@ const App = () => {
           }}
         >
           {/* forgot password */}
-          <a href='/password-reset'>Forgot password?</a>
+          <Link href='/password-reset'>Forgot Password</Link>
         </Form.Item>
         <Form.Item
           wrapperCol={{
