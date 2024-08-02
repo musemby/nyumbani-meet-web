@@ -8,7 +8,14 @@ function useAuth() {
   const snackbar = useSnackbar();
   const [token, setToken] = useState();
   const [authLoading, setAuthLoading] = useState(false);
+  const [passwordResetRequired, setPasswordResetRequired] = useState(false);
   const router = useRouter();
+
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push('/login')
+  //   }
+  // }, [isAuthenticated, router])
 
   useEffect(() => {
     getToken();
@@ -33,10 +40,52 @@ function useAuth() {
       if (data.token) {
         console.log("Save token");
         saveToken(data.token);
+        if (data.reset_password) {
+          setPasswordResetRequired(true);
+        }
       } else {
         console.log("Token not found");
         deleteToken();
       }
+    } catch (error) {
+      console.log(error);
+      snackbar.enqueueSnackbar(`Error saving form ${error}`, {
+        variant: "error",
+      });
+      deleteToken();
+    }
+    setAuthLoading(false);
+    return null;
+  }
+
+  async function resetPasswordWithServer(
+    phone,
+    currentPassword,
+    newPassword,
+    newPasswordConfirmation
+  ) {
+    setAuthLoading(true);
+    try {
+      const response = await fetch(`${SERVER_URL}/auth/nyumani_core/password_reset/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+          new_password_confirmation: newPasswordConfirmation,
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+      deleteToken()
+      router.push("/login");
+      snackbar.enqueueSnackbar(`Password changed successfully`, {
+        variant: "success",
+      });
     } catch (error) {
       console.log(error);
       snackbar.enqueueSnackbar(`Error saving form ${error}`, {
@@ -96,11 +145,13 @@ function useAuth() {
 
   return {
     isAuthenticated: !!token,
+    passwordResetRequired,
     authLoading,
     token,
     saveToken,
     deleteToken,
     authenticateWithServer,
+    resetPasswordWithServer,
     getToken,
     logout: logoutWithServer,
   };
