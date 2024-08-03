@@ -5,7 +5,7 @@ import {
 } from "../../src/api-client/bookings";
 import { useRoomList } from "../../src/api-client/rooms";
 import { useState } from "react";
-import { Select, Table, Col, Row, DatePicker, Card } from "antd";
+import { Select, Table, Col, Row, DatePicker, Card, Button } from "antd";
 import { useUserList } from "../../src/api-client/user";
 
 const { RangePicker } = DatePicker;
@@ -25,12 +25,7 @@ const Users = () => {
 
   const {} = useBookingDashboard();
 
-  const {
-    data: bookings,
-    isLoading: bookingsIsLoading,
-    isError: bookingsIsError,
-    refetch: refetchBookings,
-  } = useBookingList({
+  const bookingsUrlParams = {
     room__in:
       selectedRooms && selectedRooms.length > 0 ? String(selectedRooms) : null,
     booked_by__in:
@@ -45,7 +40,14 @@ const Users = () => {
       selectedTimeRange && selectedTimeRange.length == 2
         ? selectedTimeRange[1]?.toDate()
         : null,
-  });
+  };
+
+  const {
+    data: bookings,
+    isLoading: bookingsIsLoading,
+    isError: bookingsIsError,
+    refetch: refetchBookings,
+  } = useBookingList(bookingsUrlParams);
 
   const {
     data: rooms,
@@ -54,19 +56,58 @@ const Users = () => {
     refetch: refetchRooms,
   } = useRoomList();
 
+  function downloadCSV() {
+    const csv = bookings.map((booking) => {
+      return [
+        booking.description,
+        dayjs(booking.start_time).format("MMMM Do YYYY, h:mm a"),
+        dayjs(booking.end_time).format("MMMM Do YYYY, h:mm a"),
+        booking.room_name,
+        booking.tenant_name,
+        booking.tenant_phone_number,
+        booking.tenant_house_number,
+      ];
+    });
+
+    const header = [
+      "description",
+      "start_time",
+      "end_time",
+      "room_name",
+      "tenant_name",
+      "tenant_phone_number",
+      "tenant_house_number",
+    ];
+
+    const csvArray = [header, ...csv];
+
+    const csvContent = csvArray
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bookings-${dayjs().format("YYYY-MM-DD_HH-mm-ss")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <>
       <>
-        <Row>
+        <Row gutter={[16, 16]} style={{ margin: "20px auto" }}>
           <Col sm={12} lg={6}>
             <RangePicker
+              style={{ width: "100%" }}
               value={selectedTimeRange}
               onChange={(value) => setSelectedTimeRange(value)}
             />
           </Col>
           <Col sm={12} lg={6}>
             <Select
-              style={{ minWidth: 200, width: "100%" }}
+              style={{ width: "100%" }}
               mode="multiple"
               placeholder="Room"
               value={selectedRooms}
@@ -80,7 +121,7 @@ const Users = () => {
           </Col>
           <Col sm={12} lg={6}>
             <Select
-              style={{ minWidth: 200, width: "100%" }}
+              style={{ width: "100%" }}
               mode="multiple"
               placeholder="Tenant"
               value={selectedTenant}
@@ -92,7 +133,15 @@ const Users = () => {
               }))}
             />
           </Col>
-          <Col sm={12} lg={6}></Col>
+          <Col sm={12} lg={6}>
+            <Button
+              type="primary"
+              onClick={downloadCSV}
+              style={{ width: "50%" }}
+            >
+              Download CSV
+            </Button>
+          </Col>
         </Row>
       </>
       <Card>
