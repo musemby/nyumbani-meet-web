@@ -7,15 +7,26 @@ import {
   PoweroffOutlined,
   ShopOutlined,
   HomeOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
-import { Divider, Layout, Menu, theme } from "antd";
-const { Content, Footer, Sider } = Layout;
+import { Button, Layout, Menu, theme, Popover, List } from "antd";
+const { Content, Footer, Sider, Header } = Layout;
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
 import { useUser } from "../api-client/user";
 import Image from "next/image";
+
 const App = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const hide = () => {
+    setOpen(false);
+  };
+
+  const handleOpenChange = (newOpen) => {
+    setOpen(newOpen);
+  };
   const { authLoading, isAuthenticated, logout } = useAuth();
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -51,22 +62,22 @@ const App = ({ children }) => {
     getItem("Home", "/dashboard", false, <HomeOutlined />),
     getItem("Bookings", "/calendar", false, <CalendarOutlined />, [
       getItem("Calendar", "/calendar", false),
-      getItem("List", "/calendar/list", false),
+      getItem("List", "/calendar/list", true),
     ]),
-    getItem("Building", "/buildings", false, <BankOutlined />, [
-      getItem("View All", "/buildings", false),
-      getItem("Add New", "/buildings/create", false),
+    getItem("Building", "/buildings", true, <BankOutlined />, [
+      getItem("View All", "/buildings", true),
+      getItem("Add New", "/buildings/create", true),
     ]),
-    getItem("Room", "/rooms", false, <ShopOutlined />, [
-      getItem("View All", "/rooms", false),
-      getItem("Add New", "/rooms/create", false),
+    getItem("Room", "/rooms", true, <ShopOutlined />, [
+      getItem("View All", "/rooms", true),
+      getItem("Add New", "/rooms/create", true),
     ]),
-    getItem("Tenants", "/tenants", false, <TeamOutlined />),
+    getItem("Tenants", "/tenants", true, <TeamOutlined />),
     getItem("Restaurants", "/restaurants", false, <LayoutOutlined />, [
       getItem("View All", "/restaurants", false),
-      getItem("Add New", "/restaurants/create", false),
+      getItem("Add New", "/restaurants/create", true),
       getItem("View All Menus", "/menus", false),
-      getItem("Add New Menu", "/menus/create", false),
+      getItem("Add New Menu", "/menus/create", true),
     ]),
     getItem("Logout", "/logout", false, <PoweroffOutlined />),
   ];
@@ -113,15 +124,46 @@ const App = ({ children }) => {
         />
       </Sider>
       <Layout>
-        {/* <Header
-          style={{
-            padding: 0,
-            background: colorBgContainer,
-          }}
-        /> */}
+        <Header style={{ padding: 0, background: colorBgContainer }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              padding: "auto 20px",
+              margin: "auto 10px",
+              height: "100%",
+            }}
+          >
+            <Popover
+              placement="leftBottom"
+              content={
+                <List size="small">
+                  <List.Item>
+                    <Button
+                      type="text"
+                      onClick={() => {
+                        logout();
+                      }}
+                    >
+                      {" "}
+                      Logout
+                    </Button>
+                  </List.Item>
+                </List>
+              }
+              trigger="click"
+              open={open}
+              onOpenChange={handleOpenChange}
+            >
+              <MenuOutlined />
+            </Popover>
+          </div>
+        </Header>
         <Content
           style={{
             margin: "0 16px",
+            padding: "16px 0",
           }}
         >
           {authLoading && !isAuthenticated ? <div>Loading...</div> : children}
