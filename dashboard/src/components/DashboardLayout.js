@@ -102,17 +102,17 @@ const App = ({ children }) => {
       >
         <div
           style={{
-            margin: "5px auto",
+            margin: "2px auto",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
           }}
         >
           <Image
-            src="/images/SecondaryIcon-Dark.png"
+            src="/images/Dark2-bg_Logo.png"
             alt="logo"
-            width={50}
-            height={50}
+            width={150}
+            height={75}
           />
         </div>
 
