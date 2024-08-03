@@ -156,4 +156,5 @@ function useAuth() {
     logout: logoutWithServer,
   };
 }
-export default useAuth;
+
+export default useAuth

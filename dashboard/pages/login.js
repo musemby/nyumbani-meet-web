@@ -38,7 +38,7 @@ const App = () => {
       router.push('/calendar')
       }
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, passwordResetRequired,  router])
 
   return (
     <div
@@ -92,23 +92,14 @@ const App = () => {
         >
           <Input.Password />
         </Form.Item>
-
+        {/* forgot password */}
+        {/* <Link href='/password-reset'>Forgot Password</Link> */}
         <Form.Item
           wrapperCol={{
             offset: 8,
             span: 16,
           }}
         >
-          {/* forgot password */}
-          <Link href='/password-reset'>Forgot Password</Link>
-        </Form.Item>
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
-        >
-          {/* forgot password */}
           <Button type='primary' htmlType='submit' disabled={authLoading}>
             Log In
           </Button>
