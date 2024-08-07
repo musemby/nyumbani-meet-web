@@ -355,7 +355,7 @@ export default function CalendarPage() {
                 options={
                   users?.map((tenant) => ({
                     value: tenant.id,
-                    label: `${tenant.phone_number}`,
+                    label: `${tenant.name}`,
                   })) || []
                 }
               />

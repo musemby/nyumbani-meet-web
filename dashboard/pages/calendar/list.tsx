@@ -70,13 +70,13 @@ const Users = () => {
     });
 
     const header = [
-      "description",
-      "start_time",
-      "end_time",
-      "room_name",
-      "tenant_name",
-      "tenant_phone_number",
-      "tenant_house_number",
+      "Description",
+      "Start Time",
+      "End Time",
+      "Room",
+      "Tenant Name",
+      "Tenant Phone",
+      "House Number",
     ];
 
     const csvArray = [header, ...csv];

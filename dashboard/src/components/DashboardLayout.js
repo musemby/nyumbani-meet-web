@@ -78,8 +78,7 @@ const App = ({ children }) => {
       getItem("Add New", "/restaurants/create", true),
       getItem("View All Menus", "/menus", false),
       getItem("Add New Menu", "/menus/create", true),
-    ]),
-    getItem("Logout", "/logout", false, <PoweroffOutlined />),
+    ])
   ];
 
   function getAllItems() {

@@ -1,21 +1,20 @@
 'use client'
 
 import React from 'react'
-import { Button, Form, Input } from 'antd'
+import { Button, Form, Input, Checkbox } from 'antd'
 import useAuth from '../src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { useSnackbar } from 'notistack'
-import { Link } from 'next/link'
+import Image from 'next/image'
 
 const App = () => {
   const router = useRouter()
-  const { authenticateWithServer, passwordResetRequired, authLoading, isAuthenticated, token } =
-    useAuth()
+  const { authenticateWithServer, passwordResetRequired, authLoading, isAuthenticated } = useAuth()
   const snackbar = useSnackbar()
 
   const onFinish = (values) => {
-    authenticateWithServer(values.username, values.password)
+    authenticateWithServer(values.email, values.password)
     console.log('Success:', values)
   }
 
@@ -28,84 +27,71 @@ const App = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('isAuthenticated', isAuthenticated)
       if (passwordResetRequired) {
         router.push('/password-reset')
-        snackbar.enqueueSnackbar(`Please cahnge your password first.`, {
+        snackbar.enqueueSnackbar(`Please change your password first.`, {
           variant: "warning",
         });
       } else {
-      router.push('/calendar')
+        router.push('/calendar')
       }
     }
-  }, [isAuthenticated, passwordResetRequired,  router])
+  }, [isAuthenticated, passwordResetRequired, router, snackbar])
 
   return (
-    <div
-      style={{
-        margin: '10 auto',
-        padding: '10 auto',
-        width: '100%',
-      }}
-    >
-      <Form
-        name='basic'
-        //   labelCol={{
-        //     span: 8,
-        //   }}
-        //   wrapperCol={{
-        //     span: 16,
-        //   }}
-        style={{
-          maxWidth: 600,
-          margin: '0 auto',
-        }}
-        initialValues={{
-          username: '',
-        }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
-        autoComplete='off'
-      >
-        <Form.Item
-          label='Phone Number'
-          name='username'
-          rules={[
-            {
-              required: true,
-              message: 'Please input your phone number!',
-            },
-          ]}
+    <div style={{
+      height: '100vh',
+      backgroundImage: 'url(/path-to-your-city-image.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.9)',
+        padding: '30px',
+        paddingTop: '0',
+        borderRadius: '8px',
+        width: '350px',
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <Image src="/images/Dark2-bg_Logo.png" alt="Nyumbani Logo" width={100} height={100} />
+          <h1 style={{ marginTop: '10px' }}>NYUMBANI</h1>
+        </div>
+        <Form
+          name='login'
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
         >
-          <Input />
-        </Form.Item>
+          <Form.Item
+            name='email'
+            rules={[{ required: true, message: 'Please input your email address!' }]}
+          >
+            <Input placeholder="Enter your email address" />
+          </Form.Item>
 
-        <Form.Item
-          label='Password'
-          name='password'
-          rules={[
-            {
-              required: true,
-              message: 'Please input your password!',
-            },
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-        {/* forgot password */}
-        {/* <Link href='/password-reset'>Forgot Password</Link> */}
-        <Form.Item
-          wrapperCol={{
-            offset: 8,
-            span: 16,
-          }}
-        >
-          <Button type='primary' htmlType='submit' disabled={authLoading}>
-            Log In
-          </Button>
-        </Form.Item>
-      </Form>
+          <Form.Item
+            name='password'
+            rules={[{ required: true, message: 'Please input your password!' }]}
+          >
+            <Input.Password placeholder="Enter your secure password" />
+          </Form.Item>
+
+          {/* <Form.Item name='remember' valuePropName='checked'>
+            <Checkbox>Remember Password</Checkbox>
+          </Form.Item> */}
+
+          <Form.Item>
+            <Button type='primary' htmlType='submit' disabled={authLoading} block>
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
     </div>
   )
 }
+
 export default App
