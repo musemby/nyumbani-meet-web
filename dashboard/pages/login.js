@@ -67,9 +67,9 @@ const App = () => {
         >
           <Form.Item
             name='email'
-            rules={[{ required: true, message: 'Please input your email address!' }]}
+            rules={[{ required: true, message: 'Please input your phone number!' }]}
           >
-            <Input placeholder="Enter your email address" />
+            <Input placeholder="Enter your phone number" />
           </Form.Item>
 
           <Form.Item
