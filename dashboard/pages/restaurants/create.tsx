@@ -42,13 +42,25 @@ const App = () => {
   };
 
   return (
-    <div
-      style={{
-        margin: "10px auto",
-        padding: "10px auto",
-        width: "100%",
-      }}
-    >
+    <div style={{
+      height: '30vh',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'top',
+
+    }}>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.9)',
+        padding: '30px',
+        paddingTop: '0',
+        borderRadius: '8px',
+        width: '655px',
+      }}>
+      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <h1 style={{ marginTop: '15px' }}>Create Restaurant</h1>
+      </div>
       <Form
         name="basic"
           labelCol={{
@@ -94,7 +106,12 @@ const App = () => {
           <Input />
         </Form.Item>
 
-        <Form.Item>
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
           <Button
             type="primary"
             htmlType="submit"
@@ -104,6 +121,7 @@ const App = () => {
           </Button>
         </Form.Item>
       </Form>
+    </div>
     </div>
   );
 };

@@ -41,7 +41,7 @@ const App = () => {
   return (
     <div style={{
       height: '100vh',
-      backgroundImage: 'url(/path-to-your-city-image.jpg)',
+      // backgroundImage: 'url(/images/green-walls-office.jpg)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',
@@ -51,13 +51,14 @@ const App = () => {
       <div style={{
         background: 'rgba(255, 255, 255, 0.9)',
         padding: '30px',
-        paddingTop: '0',
+        paddingTop: '20px',
+        paddingBottom: '20px',
         borderRadius: '8px',
         width: '350px',
       }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <Image src="/images/Dark2-bg_Logo.png" alt="Nyumbani Logo" width={100} height={100} />
-          <h1 style={{ marginTop: '10px' }}>NYUMBANI</h1>
+          {/* <Image src="/images/Dark2-bg_Logo.png" alt="Nyumbani Logo" width={100} height={100} /> */}
+          <h1 style={{ marginTop: '10px' }}>NYUMBANI MEET</h1>
         </div>
         <Form
           name='login'

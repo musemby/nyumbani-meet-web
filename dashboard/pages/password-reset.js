@@ -33,13 +33,13 @@ const App = () => {
 
   return (
     <div style={{
-      height: '100vh',
-      backgroundImage: 'url(/path-to-your-city-image.jpg)',
+      height: '30vh',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center',
+      alignItems: 'top',
+
     }}>
       <div style={{
         background: 'rgba(255, 255, 255, 0.9)',
@@ -49,8 +49,7 @@ const App = () => {
         width: '655px',
       }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <Image src="/images/Dark2-bg_Logo.png" alt="Nyumbani Logo" width={100} height={100} />
-          <h1 style={{ marginTop: '10px' }}>NYUMBANI MEET</h1>
+          <h1 style={{ marginTop: '10px' }}>Reset Password</h1>
         </div>
         <Form
         name='basic'
