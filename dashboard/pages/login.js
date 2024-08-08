@@ -78,12 +78,8 @@ const App = () => {
             name='password'
             rules={[{ required: true, message: 'Please input your password!' }]}
           >
-            <Input.Password placeholder="Enter your secure password" />
+            <Input.Password placeholder="Enter your password" />
           </Form.Item>
-
-          {/* <Form.Item name='remember' valuePropName='checked'>
-            <Checkbox>Remember Password</Checkbox>
-          </Form.Item> */}
 
           <Form.Item>
             <Button type='primary' htmlType='submit' disabled={authLoading} block>
