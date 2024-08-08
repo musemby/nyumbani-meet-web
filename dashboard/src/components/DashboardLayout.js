@@ -73,10 +73,10 @@ const App = ({ children }) => {
       getItem("Add New", "/rooms/create", true),
     ]),
     getItem("Tenants", "/tenants", true, <TeamOutlined />),
-    getItem("Restaurants", "/restaurants", false, <LayoutOutlined />, [
-      getItem("View All", "/restaurants", false),
+    getItem("Restaurants", "/restaurants", true, <LayoutOutlined />, [
+      getItem("View All", "/restaurants", true),
       getItem("Add New", "/restaurants/create", true),
-      getItem("View All Menus", "/menus", false),
+      getItem("View All Menus", "/menus", true),
       getItem("Add New Menu", "/menus/create", true),
     ])
   ];
@@ -123,7 +123,7 @@ const App = ({ children }) => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header style={{ padding: 0, background: colorBgContainer, margin: '0' }}>
           <div
             style={{
               display: "flex",
