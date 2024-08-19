@@ -7,6 +7,7 @@ import { useRoomList } from "../../src/api-client/rooms";
 import { useState } from "react";
 import { Select, Table, Col, Row, DatePicker, Card, Button } from "antd";
 import { useUserList } from "../../src/api-client/user";
+import { Typography } from "antd";
 
 const { RangePicker } = DatePicker;
 
@@ -97,6 +98,9 @@ const Users = () => {
   return (
     <>
       <>
+      <Typography.Title level={3} style={{ margin: "10px auto" }}>
+        Bookings
+      </Typography.Title>
         <Row gutter={[16, 16]} style={{ margin: "20px auto" }}>
           <Col sm={12} lg={6}>
             <RangePicker

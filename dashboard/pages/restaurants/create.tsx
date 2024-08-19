@@ -43,7 +43,7 @@ const App = () => {
 
   return (
     <div style={{
-      height: '30vh',
+      height: '40vh',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',

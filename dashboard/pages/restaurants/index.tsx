@@ -1,6 +1,7 @@
 import React from "react";
 import { Table } from "antd";
 import { useRestaurantList } from "../../src/api-client/restaurants";
+import { Typography } from "antd";
 
 const Restaurants = () => {
   const {
@@ -12,13 +13,15 @@ const Restaurants = () => {
 
   return (
     <>
+      <Typography.Title level={3} style={{ margin: "10px auto" }}>
+        Restaurants
+      </Typography.Title>
       <Table
         style={{
           margin: "20px auto",
         }}
         dataSource={restaurants || []}
         bordered
-        title={() => "Restaurants"}
         loading={restaurantsIsLoading}
         columns={[
           {

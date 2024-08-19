@@ -65,7 +65,7 @@ const App = () => {
 
   return (
     <div style={{
-      height: '35vh',
+      height: '55vh',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',

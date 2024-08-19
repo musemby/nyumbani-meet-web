@@ -279,6 +279,10 @@ export default function CalendarPage() {
   // TODO: Move form to separate component
 
   return (
+    <>
+    <Typography.Title level={3} style={{ margin: "10px auto" }}>
+      Calendar
+    </Typography.Title>
     <div
       style={{
         height: "98dvh",
@@ -484,6 +488,7 @@ export default function CalendarPage() {
         />
       )}
       {/* </div> */}
-    </div>
+      </div>
+    </>
   );
 }

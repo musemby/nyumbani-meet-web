@@ -1,6 +1,7 @@
 import React from "react";
 import { Table, Tag } from "antd";
 import { useUserList } from "../../src/api-client/user";
+import { Typography } from "antd";
 
 const Users = () => {
   const {
@@ -12,13 +13,15 @@ const Users = () => {
 
   return (
     <>
-      <Table
+      <Typography.Title level={3} style={{ margin: "10px auto" }}>
+        Tenants
+      </Typography.Title>
+      <Table  
         style={{
           margin: "20px auto",
         }}
         dataSource={users || []}
         bordered
-        title={() => "Tenants"}
         loading={usersIsLoading}
         columns={[
           {

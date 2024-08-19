@@ -5,6 +5,7 @@ import { SERVER_URL } from "../../src/constants";
 import { LinkOutlined } from "@ant-design/icons";
 import { useSnackbar } from "notistack";
 import { useUser } from "../../src/api-client/user";
+import { Typography } from "antd";
 
 const Menus = () => {
   const snackbar = useSnackbar();
@@ -34,13 +35,15 @@ const Menus = () => {
 
   return (
     <>
+      <Typography.Title level={3} style={{ margin: "10px auto" }}>
+        Menus
+      </Typography.Title>
       <Table
         style={{
           margin: "20px auto",
         }}
         dataSource={menus || []}
         bordered
-        title={() => "Menus"}
         loading={menusIsLoading}
         columns={[
           {

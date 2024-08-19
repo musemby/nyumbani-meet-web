@@ -6,6 +6,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import { useBookingList } from "../src/api-client/bookings";
 import { useRef, useState } from "react";
 import { List, DatePicker } from "antd";
+import { Typography } from "antd";
 
 type Props = {};
 
@@ -60,7 +61,11 @@ const Dashboard = (props: Props) => {
 
   return (
     <>
+      <Typography.Title level={3} style={{ margin: "10px auto" }}>
+        Bookings
+      </Typography.Title>
       <DatePicker.RangePicker
+        style={{ margin: "20px auto" }}
         value={selectedTimeRange}
         onChange={(value) => setSelectedTimeRange(value)}
       />

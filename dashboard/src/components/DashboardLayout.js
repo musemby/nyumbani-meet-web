@@ -64,10 +64,10 @@ const App = ({ children }) => {
       getItem("Calendar", "/calendar", false),
       getItem("List", "/calendar/list", true),
     ]),
-    getItem("Building", "/buildings", true, <BankOutlined />, [
-      getItem("View All", "/buildings", true),
-      getItem("Add New", "/buildings/create", true),
-    ]),
+    // getItem("Building", "/buildings", true, <BankOutlined />, [
+    //   getItem("View All", "/buildings", true),
+    //   getItem("Add New", "/buildings/create", true),
+    // ]),
     getItem("Room", "/rooms", true, <ShopOutlined />, [
       getItem("View All", "/rooms", true),
       getItem("Add New", "/rooms/create", true),
