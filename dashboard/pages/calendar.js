@@ -232,6 +232,11 @@ export default function CalendarPage() {
       errors.push("The end date must be in the future");
     }
 
+    // should be at least 24 hours in the future
+    if (start.isBefore(dayjs().add(24, "hour"))) {
+      errors.push("The start date must be at least 24 hours in the future");
+    }
+
     if (start.isAfter(end)) {
       errors.push("The start date must be before the end date");
     }
