@@ -12,6 +12,8 @@ interface RoomType {
   building: string
   capacity?: number | null
   description?: string | null
+  operates_from: string | null  
+  operates_to: string | null
 }
 
 const useRoomApi = () => {
@@ -54,6 +56,9 @@ export const useCreateRoom = () => {
   return useMutation<RoomType, any, any>(
     ({ data }: { data: any }) => {
       console.log('data', data)
+      // convert operates_from and operates_to to time
+      data.operates_from = data.operates_from.format('HH:mm')
+      data.operates_to = data.operates_to.format('HH:mm')
       return create<RoomType>('/create/', data)
     },
     {

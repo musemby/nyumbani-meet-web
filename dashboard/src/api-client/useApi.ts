@@ -41,11 +41,9 @@ export function useApi(apiPath: string) {
 
       const token = getToken()
 
-      console.log('token api 2', token)
       try {
         // const token = await refreshTokenIfExpired()
         if (token) {
-          console.log('Add token to headers')
           apiHeaders.authorization = `Token ${token}`
         }
       } catch (error) {

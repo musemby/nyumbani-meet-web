@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { useCreateRoom } from "../../src/api-client/rooms";
 import { useBuildingList } from "../../src/api-client/buildings";
+import { TimePicker } from "antd";
+import { Row, Col } from "antd";
 
 const App = () => {
   const router = useRouter();
@@ -49,7 +51,7 @@ const App = () => {
 
   return (
     <div style={{
-      height: '50vh',
+      height: '65vh',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',
@@ -121,6 +123,14 @@ const App = () => {
 
         <Form.Item label="Room Description" name="description" rules={[]}>
           <Input />
+        </Form.Item>
+
+        <Form.Item label="Operates from" name="operates_from" rules={[]}>
+          <TimePicker />
+        </Form.Item>
+      
+        <Form.Item label="Operates to" name="operates_to" rules={[]}>
+          <TimePicker />
         </Form.Item>
 
         <Form.Item
