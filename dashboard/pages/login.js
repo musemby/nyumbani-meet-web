@@ -45,17 +45,24 @@ const App = () => {
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',
+      flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
     }}>
-      {/* logo */}
-  
+      <div style={{
+        marginBottom: '20px',
+        marginLeft: '10px',
+        marginRight: '10px',
+      }}>
+        <Image src="/images/Dark2-bg_Logo1.png" alt="logo" width={380} height={95} />
+      </div>
       <div style={{
         background: 'rgba(255, 255, 255, 0.9)',
         padding: '30px',
         paddingTop: '20px',
         paddingBottom: '20px',
         borderRadius: '8px',
+        margin: '5px',
         width: '350px',
       }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -73,14 +80,14 @@ const App = () => {
           >
             <Input placeholder="Enter your phone number" />
           </Form.Item>
-
+    
           <Form.Item
             name='password'
             rules={[{ required: true, message: 'Please input your password!' }]}
           >
             <Input.Password placeholder="Enter your password" />
           </Form.Item>
-
+    
           <Form.Item>
             <Button type='primary' htmlType='submit' disabled={authLoading} block>
               Login
@@ -89,6 +96,7 @@ const App = () => {
         </Form>
       </div>
     </div>
+    
   )
 }
 

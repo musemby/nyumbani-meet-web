@@ -59,7 +59,7 @@ const App = ({ children }) => {
     return returnItem;
   }
   const items = [
-    getItem("Home", "/dashboard", false, <HomeOutlined />),
+    getItem("Home", "/dashboard", true, <HomeOutlined />),
     getItem("Bookings", "/calendar", false, <CalendarOutlined />, [
       getItem("Calendar", "/calendar", false),
       getItem("List", "/calendar/list", true),
