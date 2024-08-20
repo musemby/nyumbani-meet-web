@@ -66,7 +66,7 @@ const App = () => {
         width: '350px',
       }}>
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <h1 style={{ marginTop: '10px' }}>Welcome to Nyumbani</h1>
+          <h1 style={{ marginTop: '10px' }}>Log in</h1>
         </div>
         <Form
           name='login'
