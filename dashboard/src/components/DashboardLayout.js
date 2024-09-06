@@ -9,7 +9,8 @@ import {
   HomeOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme, Popover, List } from "antd";
+import { Button, Layout, Menu, theme, Popover, List, Typography, Dropdown } from "antd";
+import { CaretDownOutlined } from '@ant-design/icons';
 const { Content, Footer, Sider, Header } = Layout;
 import useAuth from "../hooks/useAuth";
 import { useRouter } from "next/router";
@@ -88,6 +89,21 @@ const App = ({ children }) => {
     return items.filter((item) => !item.isAdmin);
   }
 
+  const menu = (
+    <Menu>
+      <Menu.Item key="1">
+        <Button
+          type="text"
+          onClick={() => {
+            logout();
+          }}
+        >
+          Logout
+        </Button>
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <Layout
       style={{
@@ -110,8 +126,8 @@ const App = ({ children }) => {
           <Image
             src="/images/Dark2-bg_Logo.png"
             alt="logo"
-            width={150}
-            height={75}
+            width={155}
+            height={40}
           />
         </div>
 
@@ -123,42 +139,68 @@ const App = ({ children }) => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer, margin: '0' }}>
-          <div
+      <Header style={{ padding: 0, background: colorBgContainer, margin: '0' }}>
+        <div
             style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              padding: "auto 20px",
-              margin: "auto 10px",
-              height: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "0 20px",
+            height: "100%",
             }}
-          >
-            <Popover
-              placement="leftBottom"
-              content={
-                <List size="small">
-                  <List.Item>
-                    <Button
-                      type="text"
-                      onClick={() => {
-                        logout();
-                      }}
-                    >
-                      {" "}
-                      Logout
-                    </Button>
-                  </List.Item>
-                </List>
-              }
-              trigger="click"
-              open={open}
-              onOpenChange={handleOpenChange}
+        >
+            {/* First div (left-aligned) */}
+            <div
+            style={{
+                display: "flex",
+                alignItems: "center",
+            }}
             >
-              <MenuOutlined />
-            </Popover>
-          </div>
+            <Typography.Title level={3} style={{ textTransform: 'uppercase' }}>
+                {user.organization_name}
+            </Typography.Title>
+            </div>
+
+            {/* Right-aligned group */}
+            <div
+            style={{
+                display: "flex",
+                alignItems: "center",
+            }}
+            >
+            {/* Second div (right-aligned) */}
+            <div
+                style={{
+                display: "flex",
+                alignItems: "center",
+                marginRight: "20px",
+                }}
+            >
+                <Typography.Title level={4} style={{ fontWeight: "normal" }}>
+                {user.building_name}
+                </Typography.Title>
+            </div>
+
+            {/* Third div (right-aligned next to second) */}
+            <div
+                style={{
+                display: "flex",
+                alignItems: "center",
+                }}
+            >
+                <Dropdown overlay={menu} trigger={['click']}>
+                <Typography.Title
+                    level={4}
+                    style={{ fontWeight: 'normal', cursor: 'pointer' }}
+                >
+                    {user.name} <CaretDownOutlined />
+                </Typography.Title>
+                </Dropdown>
+            </div>
+            </div>
+        </div>
         </Header>
+
         <Content
           style={{
             margin: "0 16px",
