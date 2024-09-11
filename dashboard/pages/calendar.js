@@ -479,13 +479,6 @@ export default function CalendarPage() {
           height="100%"
           width="100%"
           selectAllow={() => console.log("select allow")}
-          // validRange={() => {
-          //   return {
-          //     start: dayjs().subtract(2, "hour").toDate(),
-          //     end: null
-          //     // end: dayjs().add(5, "day").toDate(),
-          //   };
-          // }}
           eventDurationEditable={false}
           eventStartEditable={false}
           eventResizableFromStart={false}

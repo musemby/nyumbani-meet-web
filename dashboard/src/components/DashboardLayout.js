@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import {
   TeamOutlined,
   BankOutlined,
@@ -9,7 +9,8 @@ import {
   HomeOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme, Popover, List, Typography, Dropdown } from "antd";
+import { Loading } from "../components/loading";
+import { Button, Layout, Menu, theme, Popover, List, Typography, Dropdown, Grid, Drawer } from "antd";
 import { CaretDownOutlined } from '@ant-design/icons';
 const { Content, Footer, Sider, Header } = Layout;
 import useAuth from "../hooks/useAuth";
@@ -17,9 +18,13 @@ import { useRouter } from "next/router";
 import { useUser } from "../api-client/user";
 import Image from "next/image";
 
+const { useBreakpoint } = Grid;
+
 const App = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   const hide = () => {
     setOpen(false);
@@ -28,11 +33,13 @@ const App = ({ children }) => {
   const handleOpenChange = (newOpen) => {
     setOpen(newOpen);
   };
+
   const { authLoading, isAuthenticated, logout } = useAuth();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const router = useRouter();
+  const screens = useBreakpoint();
 
   const {
     data: user,
@@ -54,21 +61,21 @@ const App = ({ children }) => {
       if (key === "/logout") {
         returnItem.onClick = () => logout();
       } else {
-        returnItem.onClick = () => router.push(key);
+        returnItem.onClick = () => {
+          router.push(key);
+          setDrawerVisible(false);
+        };
       }
     }
     return returnItem;
   }
+
   const items = [
     getItem("Home", "/dashboard", true, <HomeOutlined />),
     getItem("Bookings", "/calendar", false, <CalendarOutlined />, [
       getItem("Calendar", "/calendar", false),
       getItem("List", "/calendar/list", true),
     ]),
-    // getItem("Building", "/buildings", true, <BankOutlined />, [
-    //   getItem("View All", "/buildings", true),
-    //   getItem("Add New", "/buildings/create", true),
-    // ]),
     getItem("Room", "/rooms", true, <ShopOutlined />, [
       getItem("View All", "/rooms", true),
       getItem("Add New", "/rooms/create", true),
@@ -110,114 +117,157 @@ const App = ({ children }) => {
         minHeight: "100vh",
       }}
     >
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
-        <div
+      <Suspense fallback={<Loading />}>
+        {/* Desktop Sider */}
+        <Sider
+          collapsible={true}
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          breakpoint="lg"
+          collapsedWidth="0"
           style={{
-            margin: "2px auto",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            display: { xs: 'none', sm: 'none', md: 'block' }
           }}
+          trigger={null}
         >
-          <Image
-            src="/images/Dark2-bg_Logo.png"
-            alt="logo"
-            width={155}
-            height={40}
+          <div
+            style={{
+              margin: "2px auto",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Image
+              src="/images/Dark2-bg_Logo.png"
+              alt="logo"
+              width={155}
+              height={40}
+            />
+          </div>
+
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["1"]}
+            mode="inline"
+            items={getAllItems()}
           />
-        </div>
+        </Sider>
 
-        <Menu
-          theme="dark"
-          defaultSelectedKeys={["1"]}
-          mode="inline"
-          items={getAllItems()}
-        />
-      </Sider>
-      <Layout>
-      <Header style={{ padding: 0, background: colorBgContainer, margin: '0' }}>
+        <Layout>
+        <Header style={{ padding: 0, background: colorBgContainer, margin: '0' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0 20px",
+          height: "100%",
+        }}
+      >
+        {/* Mobile menu button - show only on mobile screens */}
+        {screens.xs && (
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            onClick={() => setDrawerVisible(true)}
+            style={{ display: 'inline-block' }}
+          />
+        )}
+
+        {/* Organization name and Building name */}
         <div
-            style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0 20px",
-            height: "100%",
-            }}
+          style={{
+            display: 'flex',
+            flexDirection: screens.xs ? 'column' : 'row',
+            alignItems: screens.xs ? 'flex-start' : 'center',
+            justifyContent: screens.xs ? 'center' : 'flex-start',
+          }}
         >
-            {/* First div (left-aligned) */}
-            <div
+          {/* Organization name */}
+          <Typography.Title
+            level={3}
             style={{
-                display: "flex",
-                alignItems: "center",
+              textTransform: 'uppercase',
+              margin: screens.xs ? '0' : '0 10px 0 0',
+              fontSize: screens.xs ? '16px' : screens.sm ? '20px' : '24px',
             }}
-            >
-            <Typography.Title level={3} style={{ textTransform: 'uppercase' }}>
-                {user?.organization_name}
-            </Typography.Title>
-            </div>
+          >
+            {user?.organization_name}
+          </Typography.Title>
 
-            {/* Right-aligned group */}
-            <div
+          {/* Building name */}
+          <Typography.Title
+            level={4}
             style={{
-                display: "flex",
-                alignItems: "center",
+              fontWeight: "normal",
+              margin: screens.xs ? '0' : '0 10px',
+              fontSize: screens.xs ? '14px' : screens.sm ? '16px' : '18px',
             }}
-            >
-            {/* Second div (right-aligned) */}
-            <div
-                style={{
-                display: "flex",
-                alignItems: "center",
-                marginRight: "20px",
-                }}
-            >
-                <Typography.Title level={4} style={{ fontWeight: "normal" }}>
-                {user?.building_name}
-                </Typography.Title>
-            </div>
-
-            {/* Third div (right-aligned next to second) */}
-            <div
-                style={{
-                display: "flex",
-                alignItems: "center",
-                }}
-            >
-                <Dropdown overlay={menu} trigger={['click']}>
-                <Typography.Title
-                    level={4}
-                    style={{ fontWeight: 'normal', cursor: 'pointer' }}
-                >
-                    {user?.name} <CaretDownOutlined />
-                </Typography.Title>
-                </Dropdown>
-            </div>
-            </div>
+          >
+            {user?.building_name}
+          </Typography.Title>
         </div>
-        </Header>
 
-        <Content
+        {/* Right-aligned group */}
+        <div
           style={{
-            margin: "0 16px",
-            padding: "16px 0",
+            display: "flex",
+            alignItems: "center",
           }}
         >
-          {authLoading && !isAuthenticated ? <div>Loading...</div> : children}
-        </Content>
-        <Footer
-          style={{
-            textAlign: "center",
-          }}
-        >
-          Nyumbani ©{new Date().getFullYear()}
-        </Footer>
-      </Layout>
+          {/* User dropdown */}
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Typography.Title
+              level={4}
+              style={{
+                fontWeight: 'normal',
+                cursor: 'pointer',
+                margin: 0,
+                fontSize: screens.xs ? '14px' : screens.sm ? '16px' : '18px',
+              }}
+            >
+              {user?.name} <CaretDownOutlined />
+            </Typography.Title>
+          </Dropdown>
+        </div>
+      </div>
+    </Header>
+
+          <Content
+            style={{
+              margin: "0 16px",
+              padding: "16px 0",
+            }}
+          >
+            {authLoading && !isAuthenticated ? <div>Loading...</div> : children}
+          </Content>
+
+          <Footer
+            style={{
+              textAlign: "center",
+            }}
+          >
+            Nyumbani ©{new Date().getFullYear()}
+          </Footer>
+
+          {/* Mobile Drawer */}
+          <Drawer
+            title="Menu"
+            placement="left"
+            onClose={() => setDrawerVisible(false)}
+            visible={drawerVisible}
+          >
+            <Menu
+              theme="light"
+              mode="inline"
+              items={getAllItems()}
+            />
+          </Drawer>
+        </Layout>
+      </Suspense>
     </Layout>
   );
 };
+
 export default App;
