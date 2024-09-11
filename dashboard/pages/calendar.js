@@ -384,7 +384,7 @@ export default function CalendarPage() {
           this booking.
         </p>
       </Modal>
-      <Flex justify="center" alignItems="center" gap={2}>
+      <Flex justify="start" alignItems="center" gap={4}>
         <Select
           style={{ minWidth: 120 }}
           value={room}
@@ -394,6 +394,7 @@ export default function CalendarPage() {
             value: room.id,
             label: room.name,
           }))}
+          size="large"
         />
         <Select
           style={{ minWidth: 120 }}
@@ -406,6 +407,7 @@ export default function CalendarPage() {
             { value: "timeGridDay", label: "Day view" },
             { value: "list", label: "List view" },
           ]}
+          size="large"
         />
       </Flex>
 
@@ -460,8 +462,7 @@ export default function CalendarPage() {
           headerToolbar={{
             center: "",
             right: "title",
-            left: "prev,next today",
-            // right: 'resourceTimelineWeek,dayGridMonth,timeGridWeek,timeGridDay',
+            left: view === "timeGridDay" ? "prev,next" : "prev,next today",
           }}
           initialView={initialCalendarView}
           nowIndicator={true}
