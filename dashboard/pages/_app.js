@@ -2,6 +2,7 @@ import '../styles/globals.css'
 
 import DashboardLayout from '../src/components/DashboardLayout'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 import { SnackbarProvider } from 'notistack'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -19,6 +20,10 @@ export default function App({ Component, pageProps }) {
   const router = useRouter()
   return (
     <>
+    <Head>
+      <link rel="icon" href="/images/favicon.ico" />
+      <title>Nyumbani</title>
+    </Head>
       <SnackbarProvider
         preventDuplicate
         autoHideDuration={2500}

@@ -83,7 +83,7 @@ const App = ({ children }) => {
   ];
 
   function getAllItems() {
-    if (user && user.is_admin) {
+    if (user && user?.is_admin) {
       return items;
     }
     return items.filter((item) => !item.isAdmin);
@@ -157,7 +157,7 @@ const App = ({ children }) => {
             }}
             >
             <Typography.Title level={3} style={{ textTransform: 'uppercase' }}>
-                {user.organization_name}
+                {user?.organization_name}
             </Typography.Title>
             </div>
 
@@ -177,7 +177,7 @@ const App = ({ children }) => {
                 }}
             >
                 <Typography.Title level={4} style={{ fontWeight: "normal" }}>
-                {user.building_name}
+                {user?.building_name}
                 </Typography.Title>
             </div>
 
@@ -193,7 +193,7 @@ const App = ({ children }) => {
                     level={4}
                     style={{ fontWeight: 'normal', cursor: 'pointer' }}
                 >
-                    {user.name} <CaretDownOutlined />
+                    {user?.name} <CaretDownOutlined />
                 </Typography.Title>
                 </Dropdown>
             </div>

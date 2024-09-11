@@ -11,6 +11,8 @@ interface UserType {
   phone_number: string;
   is_admin: boolean;
   is_staff: boolean;
+  organization_name: string | null;
+  building_name: string | null;
 }
 
 const useUserApi = () => {
