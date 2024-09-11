@@ -10,7 +10,7 @@ import {
   MenuOutlined,
 } from "@ant-design/icons";
 import { Loading } from "../components/loading";
-import { Button, Layout, Menu, theme, Popover, List, Typography, Dropdown, Grid, Drawer } from "antd";
+import { Button, Layout, Menu, theme, Spin, List, Typography, Dropdown, Grid, Drawer } from "antd";
 import { CaretDownOutlined } from '@ant-design/icons';
 const { Content, Footer, Sider, Header } = Layout;
 import useAuth from "../hooks/useAuth";
@@ -19,6 +19,29 @@ import { useUser } from "../api-client/user";
 import Image from "next/image";
 
 const { useBreakpoint } = Grid;
+
+const Loader = () => {
+  const [spinning, setSpinning] = React.useState(false);
+  const [percent, setPercent] = React.useState(50);
+  const showLoader = () => {
+    setSpinning(true);
+    let ptg = -10;
+    const interval = setInterval(() => {
+      ptg += 5;
+      setPercent(ptg);
+      if (ptg > 120) {
+        clearInterval(interval);
+        setSpinning(false);
+        setPercent(0);
+      }
+    }, 100);
+  };
+  return (
+    <>
+      <Spin spinning={spinning} percent={percent} fullscreen />
+    </>
+  );
+};
 
 const App = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -117,7 +140,6 @@ const App = ({ children }) => {
         minHeight: "100vh",
       }}
     >
-      <Suspense fallback={<Loading />}>
         {/* Desktop Sider */}
         <Sider
           collapsible={true}
@@ -265,7 +287,6 @@ const App = ({ children }) => {
             />
           </Drawer>
         </Layout>
-      </Suspense>
     </Layout>
   );
 };
