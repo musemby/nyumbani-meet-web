@@ -45,6 +45,9 @@ function useAuth() {
         }
       } else {
         console.log("Token not found");
+        snackbar.enqueueSnackbar(`There was a problem with your phone number or password.`, {
+          variant: "error",
+        });
         deleteToken();
       }
     } catch (error) {
